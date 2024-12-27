@@ -15,7 +15,6 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
     const fbx = useLoader(FBXLoader, '/models/Walking.fbx'); // Use relative path to the public directory
     const mixer = useRef<AnimationMixer | null>(null);
 
-    console.log(fbx);
     useFrame((state, delta) => {
         if (mixer.current) mixer.current.update(delta);
 
@@ -45,9 +44,8 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
                 ref.current.setLinvel(new Vector3(vx, 0, vz), true);
 
                 // Rotate the character to face the target
-                const rotation = Math.atan2(dz, dx);
-                ref.current.setRotation(new Euler(0, rotation, 0));
-                // fbx.setRotationFromEuler(new)
+                const rotation = Math.atan2(dx, dz);                
+                fbx.rotation.set(0, rotation, 0)
                 
 
                 if (walkAnimation && mixer.current) {
