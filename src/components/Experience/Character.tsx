@@ -15,6 +15,28 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
     const fbx = useLoader(FBXLoader, '/models/Walking.fbx'); // Use relative path to the public directory
     const mixer = useRef<AnimationMixer | null>(null);
 
+    const currentAction = useRef<any>(null);
+    // console.log(fbx)
+    const playAnimation = (clipName: string) => {
+        if (mixer.current) {
+            const clip = fbx.animations.find((anim) => anim.name.toLowerCase().includes(clipName));
+            if (clip) {
+                const action = mixer.current.clipAction(clip);
+                if (currentAction.current !== action) {
+                    console.log(currentAction.current);
+                    
+                    if (currentAction.current) {
+                        currentAction.current.crossFadeTo(action, 0.5, true).stop();
+                        console.log("stop");
+                        
+                    }
+                    action.reset().fadeIn(0.5).play();
+                    currentAction.current = action;
+                }
+            }
+        }
+    };
+
     useFrame((state, delta) => {
         if (mixer.current) mixer.current.update(delta);
 
@@ -24,7 +46,7 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
             const cx = translation.x;
             const cz = translation.z;
 
-            const speed = 2.5; // Movement speed
+            const speed = 2; // Movement speed
             const dx = tx - cx;
             const dz = tz - cz;
             const distance = Math.sqrt(dx * dx + dz * dz);
@@ -32,9 +54,6 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
             if (fbx.animations.length > 0 && !mixer.current) {
                 mixer.current = new AnimationMixer(fbx);
             }
-            const walkAnimation = fbx.animations.find(
-                (clip) => clip.name.toLowerCase().includes('mixamo.com')
-            );
 
             if (distance > 0.1) {
                 const vx = (dx / distance) * speed;
@@ -44,20 +63,15 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
                 ref.current.setLinvel(new Vector3(vx, 0, vz), true);
 
                 // Rotate the character to face the target
-                const rotation = Math.atan2(dx, dz);                
-                fbx.rotation.set(0, rotation, 0)
-                
+                const rotation = Math.atan2(dx, dz);
+                fbx.rotation.set(0, rotation, 0);
 
-                if (walkAnimation && mixer.current) {
-                    mixer.current.clipAction(walkAnimation).play();
-                }
+                playAnimation('mixamo.com'); // Play walk animation
             } else {
                 // Stop movement when close to target
                 ref.current.setLinvel(new Vector3(0, 0, 0));
                 onArrival();
-                if (walkAnimation && mixer.current) {
-                    mixer.current.clipAction(walkAnimation).stop();
-                }
+                playAnimation('Take 001'); // Play idle animation when stopped
             }
         }
     });
@@ -73,10 +87,6 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
             angularDamping={0.5}
         >
             <primitive object={fbx} scale={0.01} castShadow />
-            {/* <mesh castShadow>
-                <boxGeometry args={[.5, 1, 1,]} />
-                <meshStandardMaterial color="blue" />
-            </mesh> */}
         </RigidBody>
     );
 };
