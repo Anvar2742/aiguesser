@@ -33,6 +33,13 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
                     action.reset().fadeIn(0.5).play();
                     currentAction.current = action;
                 }
+            } else {
+                // Switch to T-pose if no clip is found
+                if (currentAction.current) {
+                    currentAction.current.fadeOut(0.5);
+                    currentAction.current = null;
+                }
+                console.log("Switching to T-pose: No animation found for", clipName);
             }
         }
     };
