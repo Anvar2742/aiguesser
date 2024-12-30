@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
 import { Vector3, AnimationMixer, Euler } from 'three';
@@ -8,9 +8,10 @@ import { Position } from './utills';
 type CharacterProps = {
     targetPosition: Position;
     onArrival: () => void;
+    playerRef: any;
 };
 
-const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
+const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival, playerRef }) => {
     const ref = useRef<any>();
     const fbx = useLoader(FBXLoader, '/models/Walking.fbx'); // Use relative path to the public directory
     const mixer = useRef<AnimationMixer | null>(null);
@@ -23,7 +24,7 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
             if (clip) {
                 const action = mixer.current.clipAction(clip);
                 if (currentAction.current !== action) {
-                    console.log(currentAction.current);
+                    // console.log(currentAction.current);
                     
                     if (currentAction.current) {
                         currentAction.current.crossFadeTo(action, 0.5, true).stop();
@@ -39,7 +40,7 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
                     currentAction.current.fadeOut(0.5);
                     currentAction.current = null;
                 }
-                console.log("Switching to T-pose: No animation found for", clipName);
+                // console.log("Switching to T-pose: No animation found for", clipName);
             }
         }
     };
@@ -83,13 +84,19 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
         }
     });
 
+
+
+    useEffect(() => {
+        playerRef.current = ref.current
+    }, [ref.current])
+
     return (
         <RigidBody
             ref={ref}
             colliders={false}
             type="dynamic" // Ensure the RigidBody is dynamic
             restitution={0.5} // Makes it slightly bouncy
-            position={[0, 0, 0]}
+            position={[0, 0, 2]}
             linearDamping={0.5} // Prevent sliding
             angularDamping={0.5}
         >
