@@ -14,7 +14,8 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp }) => {
     const [color, setColor] = useState(generateRandomColor);
     const item = useRef(null);
 
-    const handleClick = () => {
+    const handleClick = (e: any) => {
+        e.stopPropagation();
         onPickUp(item);
     };
 
