@@ -1,7 +1,7 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
-import { Vector3, AnimationMixer, Euler } from 'three';
+import { Vector3, AnimationMixer, Euler, SkeletonHelper } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { Position } from './utills';
 
@@ -20,6 +20,7 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => localRef.current);
+
 
     const playAnimation = (fbx: any, clipName: string, playbackRate: number = 1) => {
         if (!mixer.current) return;
@@ -47,7 +48,14 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
         }
     };
 
+    useImperativeHandle(ref, () => ({
+        rigidBody: localRef.current, // Expose the rigid body
+        fbxObject: walkFBX,         // Expose the FBX object
+    }));
+
     useFrame((_, delta) => {
+        walkFBX.getObjectByName("mixamorigRightHand")?.getObjectByName("Letter")?.position.set(0, 0, 0)
+
         if (mixer.current) mixer.current.update(delta);
 
         if (localRef.current && targetPosition) {
@@ -86,18 +94,21 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
         }
     });
 
+
     return (
-        <RigidBody
-            ref={localRef}
-            colliders={false}
-            type="dynamic" // Ensure the RigidBody is dynamic
-            restitution={0.5} // Makes it slightly bouncy
-            position={[0, 0, 0]}
-            linearDamping={0.5} // Prevent sliding
-            angularDamping={0.5}
-        >
-            <primitive object={walkFBX} scale={0.01} castShadow />
-        </RigidBody>
+        <>
+            <RigidBody
+                ref={localRef}
+                colliders={false}
+                type="dynamic" // Ensure the RigidBody is dynamic
+                restitution={0.5} // Makes it slightly bouncy
+                position={[0, 0, 0]}
+                linearDamping={0.5} // Prevent sliding
+                angularDamping={0.5}
+            >
+                <primitive object={walkFBX} scale={0.01} castShadow />
+            </RigidBody>
+        </>
     );
 });
 

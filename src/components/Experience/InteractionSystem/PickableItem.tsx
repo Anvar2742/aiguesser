@@ -7,25 +7,16 @@ const generateRandomColor = () => {
 };
 
 type PickableItemProps = {
-    onPickUp: () => void;
-    playerRef: any;
-    attachedItem: any;
+    onPickUp: (item: { current: any; }) => void;
 };
 
-const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, playerRef, attachedItem }) => {
+const PickableItem: React.FC<PickableItemProps> = ({ onPickUp }) => {
     const [color, setColor] = useState(generateRandomColor);
     const item = useRef(null);
 
-    const handleClick = (e) => {
-        onPickUp(e);
+    const handleClick = () => {
+        onPickUp(item);
     };
-
-    useFrame(() => {
-        if (item.current && playerRef.current && attachedItem) {
-            const { x, y, z } = playerRef.current.translation();
-            item.current.position.set(x + 1, y + 1, z);
-        }
-    });
 
     return (
         <RigidBody type="dynamic" colliders="cuboid">
@@ -35,8 +26,9 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, playerRef, attach
                 castShadow
                 receiveShadow
                 ref={item}
+                name='Letter'
             >
-                <boxGeometry args={[1, 1, 1]} />
+                <boxGeometry args={[.2, .3, .1]} />
                 <meshStandardMaterial color={color} />
             </mesh>
         </RigidBody>
