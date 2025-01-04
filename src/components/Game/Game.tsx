@@ -1,5 +1,6 @@
-import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState } from "playroomkit";
+import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer } from "playroomkit";
 import { useEffect, useState } from "react";
+import Room from "../Experience/Room";
 
 const Game = () => {
     const [players, setPlayers] = useState<PlayerState[]>([]);
@@ -48,13 +49,7 @@ const Game = () => {
 
     if (status === 1) return
     return (
-        <div className="h-screen bg-slate-900">
-            {players.map((player) => (
-                <div key={player.id}>
-                    {player.getProfile().name} = {player.getState("role")}
-                </div>
-            ))}
-        </div>
+        <Room player={myPlayer()} />
     );
 };
 

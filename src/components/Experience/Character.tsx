@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
-import { Vector3, AnimationMixer } from 'three';
+import { Vector3, AnimationMixer, Euler } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { Position } from './utills';
 
@@ -10,45 +10,49 @@ type CharacterProps = {
     onArrival: () => void;
 };
 
-const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
-    const ref = useRef<any>();
+const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }, ref) => {
+    const localRef = useRef<any>();
     const walkFBX = useLoader(FBXLoader, '/models/Walking.fbx'); // Walking animation FBX
     const idleFBX = useLoader(FBXLoader, '/models/Idle.fbx'); // Idle animation FBX
 
     const mixer = useRef<AnimationMixer | null>(null);
     const currentAction = useRef<any>(null);
 
+    // Expose the local ref to the parent component through the forwarded ref
+    useImperativeHandle(ref, () => localRef.current);
+
     const playAnimation = (fbx: any, clipName: string, playbackRate: number = 1) => {
         if (!mixer.current) return;
 
-        const transitionSpeed = 0.3
-        const clip = fbx.animations.find((anim: { name: string; }) => anim.name.toLowerCase().includes(clipName.toLowerCase()));
+        const clip = fbx.animations.find((anim: { name: string }) =>
+            anim.name.toLowerCase().includes(clipName.toLowerCase())
+        );
         if (clip) {
             const action = mixer.current.clipAction(clip);
             action.timeScale = playbackRate; // Adjust playback speed
             if (currentAction.current !== action) {
                 if (currentAction.current) {
-                    currentAction.current.crossFadeTo(action, transitionSpeed, true).stop();
+                    currentAction.current.crossFadeTo(action, 0.1, true).stop();
                 }
-                action.reset().fadeIn(transitionSpeed).play();
+                action.reset().fadeIn(0.1).play();
                 currentAction.current = action;
             }
         } else {
             // No animation found
             if (currentAction.current) {
-                currentAction.current.fadeOut(transitionSpeed);
+                currentAction.current.fadeOut(0.1);
                 currentAction.current = null;
             }
-            console.log("No animation found for", clipName);
+            console.log('No animation found for', clipName);
         }
     };
 
     useFrame((_, delta) => {
         if (mixer.current) mixer.current.update(delta);
 
-        if (ref.current && targetPosition) {
+        if (localRef.current && targetPosition) {
             const { x: tx, z: tz } = targetPosition;
-            const translation = ref.current.translation();
+            const translation = localRef.current.translation();
             const cx = translation.x;
             const cz = translation.z;
 
@@ -61,35 +65,30 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
                 mixer.current = new AnimationMixer(walkFBX);
             }
 
-            // Play and stop animation with more delay
-            if (distance > 0.2) {
-                playAnimation(walkFBX, 'mixamo.com', 1.5); // Play walking animation with faster spee
-            } else {
-                playAnimation(idleFBX, 'mixamo.com'); // Play idle animation when stopped
-            }
-
-            // Movement & rotation
             if (distance > 0.1) {
                 const vx = (dx / distance) * speed;
                 const vz = (dz / distance) * speed;
 
                 // Use setLinvel to move the character
-                ref.current.setLinvel(new Vector3(vx, 0, vz), true);
+                localRef.current.setLinvel(new Vector3(vx, 0, vz), true);
 
                 // Rotate the character to face the target
                 const rotation = Math.atan2(dx, dz);
-                walkFBX.rotation.set(0, rotation, 0)
+                walkFBX.rotation.set(0, rotation, 0);
+
+                playAnimation(walkFBX, 'mixamo.com', 1.5); // Play walking animation with faster speed
             } else {
                 // Stop movement when close to target
-                ref.current.setLinvel(new Vector3(0, 0, 0));
+                localRef.current.setLinvel(new Vector3(0, 0, 0));
                 onArrival();
+                playAnimation(idleFBX, 'mixamo.com'); // Play idle animation when stopped
             }
         }
     });
 
     return (
         <RigidBody
-            ref={ref}
+            ref={localRef}
             colliders={false}
             type="dynamic" // Ensure the RigidBody is dynamic
             restitution={0.5} // Makes it slightly bouncy
@@ -100,6 +99,6 @@ const Character: React.FC<CharacterProps> = ({ targetPosition, onArrival }) => {
             <primitive object={walkFBX} scale={0.01} castShadow />
         </RigidBody>
     );
-};
+});
 
 export default Character;

@@ -1,6 +1,6 @@
 import './App.css'
-import TheRoom from './components/Experience/TheRoom'
-import Game from './components/GameLoop/Game'
+import TheRoom from './components/Experience/Room'
+import Game from './components/Game/Game'
 
 function App() {
   return (
