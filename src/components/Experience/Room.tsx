@@ -1,28 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { useThree } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
 import Chat from './Chat';
 import { Position } from './utills';
 import Character from './Character';
 import Plane from './Plane';
-import { PlayerState } from 'playroomkit';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
 import { Mesh } from 'three';
-import { OrbitControls } from '@react-three/drei';
-import useLetters from './useLetters';
+import { OrbitControls, Text } from '@react-three/drei';
+import useLetters, { Letter } from './useLetters';
+import { myPlayer } from 'playroomkit';
 
-type RoomProps = {
-    player: PlayerState
-};
-
-const Room: React.FC<RoomProps> = ({ player }) => {
-    const [targetPosition, setTargetPosition] = useState<Position>({ x: 0, z: 3 });
-    const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
+const Room: React.FC = () => {
+    // Position & Movement
     const playerRef = useRef<any>();
-    const [heldObject, setHeldObject] = useState(null)
+    const [targetPosition, setTargetPosition] = useState<Position>({ x: 0, z: 1 });
+    const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
+
+    // Interaction
+    const [heldObject, setHeldObject] = useState<Mesh | null>(null)
+
+    // Post box
     const [postedObject, setPostedObject] = useState<Mesh | null>(null);
+    // Multiplayer (all letters)
     const { letters, addLetter, updateLetter } = useLetters();
+
+    const { scene } = useThree()
 
     const handlePlaneClick = (position: Position) => {
         setTargetPosition(position);
@@ -33,27 +37,37 @@ const Room: React.FC<RoomProps> = ({ player }) => {
         setIndicatorPosition(null);
     };
 
-    const handlePickUp = (item: { current: any; }) => {
-        item.current.position.set(0, 0, 0)
-        playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item.current)
-        setHeldObject(item.current)
+    const handlePickUp = (item: Mesh | null) => {
+        if (!item) return
+        item.position.set(0, 0, 0)
+        playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item)
+
+        setHeldObject(item)
         setPostedObject(null)
     }
 
     const handleObjectSent = (e: any) => {
         e.stopPropagation()
         // console.log(heldObject);
-        addLetter(heldObject)
+        // addLetter(heldObject)
     }
 
     useEffect(() => {
         console.log(letters);
     }, [letters])
 
+    const handleRightClick = (e: any) => {
+        if (heldObject) {
+            // Reattach the held object to the scene
+            scene.attach(heldObject);
 
+            // Set the object's position to the clicked position on the plane
+            heldObject.position.set(e.point.x, e.point.y, e.point.z);
+        }
+    };
 
     return (
-        <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
+        <>
             <ambientLight intensity={0.8} />
             <directionalLight
                 position={[10, 10, 10]}
@@ -64,7 +78,7 @@ const Room: React.FC<RoomProps> = ({ player }) => {
             />
             <Chat />
             <Physics>
-                <Plane onPlaneClick={handlePlaneClick} />
+                <Plane onPlaneClick={handlePlaneClick} onRightClick={handleRightClick} />
                 <Character targetPosition={targetPosition} onArrival={handleArrival} ref={playerRef} />
                 {indicatorPosition && (
                     <mesh position={[indicatorPosition.x, 0, indicatorPosition.z]}>
@@ -72,17 +86,18 @@ const Room: React.FC<RoomProps> = ({ player }) => {
                         <meshStandardMaterial color="red" />
                     </mesh>
                 )}
-                {letters.map(letter => {
-                    return (
-                        <PickableItem onPickUp={handlePickUp}  />
-                    )
-                })}
-                <PickableItem onPickUp={handlePickUp} />
+                {letters
+                    .filter((letter: Letter) => letter.owner === myPlayer()?.id)
+                    .map((letter: Letter) => {
+                        return (
+                            <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} />
+                        )
+                    })}
                 <PostBox heldObject={heldObject} onObjectSent={handleObjectSent} postedObject={postedObject} setPostedObject={setPostedObject} />
             </Physics>
             <gridHelper args={[30, 15]} />
             <OrbitControls />
-        </Canvas>
+        </>
     );
 };
 

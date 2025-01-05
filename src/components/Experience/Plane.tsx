@@ -3,9 +3,10 @@ import { Position } from "./utills";
 
 type PlaneProps = {
     onPlaneClick: (position: Position) => void;
+    onRightClick: (e: any) => void;
 };
 
-const Plane: React.FC<PlaneProps> = ({ onPlaneClick }) => {
+const Plane: React.FC<PlaneProps> = ({ onPlaneClick, onRightClick }) => {
     return (
         <RigidBody type="fixed" colliders={"cuboid"}>
             <mesh
@@ -15,6 +16,7 @@ const Plane: React.FC<PlaneProps> = ({ onPlaneClick }) => {
                     const [x, , z] = e.point.toArray();
                     onPlaneClick({ x, z });
                 }}
+                onContextMenu={onRightClick}
             >
                 <planeGeometry args={[30, 30]} />
                 <meshStandardMaterial color="green" />

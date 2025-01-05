@@ -36,7 +36,7 @@ const PostBox: React.FC<PostBoxProps> = ({ heldObject, onObjectSent, setPostedOb
         <RigidBody
             colliders={false}
             type="fixed"
-            position={[0, 0, 0]} // Adjust position as necessary
+            position={[3, .5, 3]} // Adjust position as necessary
         >
             <mesh
                 ref={postBoxRef}
