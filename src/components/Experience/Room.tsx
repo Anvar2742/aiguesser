@@ -7,7 +7,7 @@ import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Group, Mesh, Object3D, Vector3 } from 'three';
+import { Group, Mesh, Vector3, BufferGeometry, Material, NormalBufferAttributes, Object3DEventMap, ObjectLoader } from 'three';
 import { OrbitControls, Text } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer } from 'playroomkit';
@@ -19,10 +19,10 @@ const Room: React.FC = () => {
     const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
 
     // Interaction
-    const [heldObject, setHeldObject] = useState<Object3D | null>(null)
+    const [heldObject, setHeldObject] = useState<any | null>(null)
 
     // Post box
-    const [postedObject, setPostedObject] = useState<Object3D | null>(null);
+    const [postedObject, setPostedObject] = useState<any | null>(null);
     const postBoxRef = useRef<Group>(null);
 
     // Multiplayer (all letters)
@@ -47,17 +47,13 @@ const Room: React.FC = () => {
      * @param item Mesh of the letter
      * @returns void
      */
-    const handlePickUp = (item: Object3D | null) => {
+    const handlePickUp = (item: any | null) => {
         if (!item) return
         item.position.set(0, 0, 0)
         playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item)
 
         setHeldObject(item)
         setPostedObject(null)
-    }
-
-    const handleObjectSent = (e: any) => {
-        e.stopPropagation()
     }
 
     /**
@@ -102,6 +98,35 @@ const Room: React.FC = () => {
         }
     };
 
+    /**
+     * Send letters
+     * @param e ThreeEvent<MouseEvent>
+     */
+    const sendLetters = (e: ThreeEvent<MouseEvent>) => {
+        e.stopPropagation()
+        if (postedObject) {
+            // console.log('send letter', postedObject);
+            // postedObject.userData = "nothing"
+            // // Send the letter to the server
+            const updatedPostObject: Letter = {
+                owner: "",
+                to: "",
+                from: myPlayer()?.id,
+                uuid: postedObject.uuid,
+                msg: postedObject.userData.msg,
+            }
+            // console.log('send letter', updatedPostObject);
+            updateLetter(updatedPostObject.uuid, updatedPostObject);
+
+            // Set the posted object as null
+            setPostedObject(null);
+        }
+    }
+
+    useEffect(() => {
+      console.log(letters)
+    }, [letters])
+    
 
     return (
         <>
@@ -123,14 +148,16 @@ const Room: React.FC = () => {
                         <meshStandardMaterial color="red" />
                     </mesh>
                 )}
-                {letters
-                    .filter((letter: Letter) => letter.owner === myPlayer()?.id)
-                    .map((letter: Letter) => {
-                        return (
-                            <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} />
-                        )
-                    })}
-                <PostBox onObjectSent={handleObjectSent} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
+                {
+                    letters
+                        .filter((letter: Letter) => letter.owner === myPlayer()?.id)
+                        .map((letter: Letter) => {
+                            return (
+                                <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} />
+                            )
+                        })
+                }
+                <PostBox onObjectSent={sendLetters} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
             </Physics>
             <gridHelper args={[30, 15]} />
             <OrbitControls />

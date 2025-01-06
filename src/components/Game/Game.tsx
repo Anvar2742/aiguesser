@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Room from "../Experience/Room";
 import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
-import { Mesh } from "three";
+import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three";
 import Loader from "../Loader";
 
 const Game = () => {
@@ -55,25 +55,27 @@ const Game = () => {
 
     const createLettersForSeeker = () => {
         players.forEach((player) => {
-            if (player.getState('role') === 'seeker' && letters.length < 2) {
-                const letterMesh = new Mesh();
-                letterMesh.name = "Letter";
-                const initLetter: Letter = {
+            if (player.getState('role') === 'seeker' && letters.length < 1) {
+                const newLetterMesh = new Mesh()
+                // Create a new Mesh instance
+                const newLetter: Letter  = {
                     owner: player.id,
                     from: player.id,
                     to: null,
                     msg: "",
-                    mesh: letterMesh,
-                };
-                addLetter(initLetter);
+                    uuid: newLetterMesh.uuid
+                }    
+                // Add the new Mesh object directly to the state
+                addLetter(newLetter);
             }
         });
     };
+    
 
     const init = () => {
         console.log("init", status, roles);
 
-        if (isHost() && status === 1 && players.length > 1) {
+        if (isHost() && status === 1 && players.length > 0) {
             console.log("proceed init");
             if (roles.length === 0) {
                 assignRoles(players);
@@ -133,9 +135,8 @@ const Game = () => {
                 <li>{myPlayer()?.id}</li>
                 <li>{myPlayer()?.getProfile().name}</li>
                 <li
-                    className={`${
-                        myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
-                    }`}
+                    className={`${myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
+                        }`}
                 >
                     Role: {myPlayer()?.getState("role")}
                 </li>

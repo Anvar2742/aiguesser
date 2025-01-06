@@ -1,12 +1,11 @@
 import { useMultiplayerState } from "playroomkit";
-import { Mesh } from "three";
 
 export type Letter = {
     owner: string;
     from: string | null;
     to: string | null;
     msg: string | null;
-    mesh: Mesh;
+    uuid: string;
 }
 
 const useLetters = () => {
@@ -18,7 +17,7 @@ const useLetters = () => {
 
     const updateLetter = (uuid: string, updatedLetter: Letter) => {
         setLetters(letters.map((letter: Letter) =>
-            letter.mesh.uuid === uuid
+            letter.uuid === uuid
                 ? updatedLetter
                 : letter
         ));

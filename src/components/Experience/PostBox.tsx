@@ -6,7 +6,7 @@ import useLetters from './useLetters';
 type PostBoxProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
     onObjectSent: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
-    postedObject: Object3D | null; // The object that is in the post box
+    postedObject: any | null; // The object that is in the post box
 };
 
 const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, postedObject }, ref) => {
