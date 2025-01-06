@@ -40,7 +40,7 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
             position={[2, 1, 5]}
             castShadow
             receiveShadow
-            name={letter ? letter.mesh.name : "Default letter"}
+            name={'letter'}
         >
             <boxGeometry args={[.2, .3, .1]} />
             <meshStandardMaterial color={letter ? "orange" : color} />

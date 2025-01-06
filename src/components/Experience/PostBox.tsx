@@ -1,48 +1,36 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Mesh, Object3D } from 'three';
-import { useFrame } from '@react-three/fiber';
-import { RigidBody } from '@react-three/rapier';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Group, Mesh, Object3D } from 'three';
+import { ThreeEvent, useFrame } from '@react-three/fiber';
 import useLetters from './useLetters';
 
 type PostBoxProps = {
-    heldObject: Object3D | null; // The object currently held by the player
-    onObjectSent: (e: any) => void; // Callback to inform the parent when the object is sent
-    setPostedObject: any;
-    postedObject: Mesh | null;
+    onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
+    onObjectSent: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
+    postedObject: Object3D | null; // The object that is in the post box
 };
 
-const PostBox: React.FC<PostBoxProps> = ({ heldObject, onObjectSent, setPostedObject, postedObject }) => {
-    const postBoxRef = useRef<Mesh>(null);    
+const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, postedObject }, ref) => {
+    const postBoxRef = useRef<Group>(null);
 
-    const handlePost = (e: any) => {
-        e.stopPropagation();
-        if (heldObject && postBoxRef.current) {
-            // Position the held object near the post box with an offset
-
-            // Attach the held object to the post box
-            postBoxRef.current.attach(heldObject);
-
-            // Set the held object as posted
-            setPostedObject(heldObject);
-        }
-    };
+    // Expose the local ref to the parent component through the forwarded ref
+    useImperativeHandle(ref, () => postBoxRef.current);
 
     useFrame(() => {
-        postedObject?.position.set(0, 0, 0).add({ x: 0, y: 1, z: 0 });
+        if (postBoxRef.current) {
+            postedObject?.position.set(0, 1, 0);
+        }
     })
-    
 
     return (
-        <RigidBody
-            colliders={false}
-            type="fixed"
-            position={[3, .5, 3]} // Adjust position as necessary
+        <group
+            position={[3, .5, 3]}
+            ref={postBoxRef}
+            onContextMenu={onObjectPut}
         >
             <mesh
-                ref={postBoxRef}
-                onClick={handlePost}
                 castShadow
                 receiveShadow
+                name='post-box'
             >
                 <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial color="yellow" />
@@ -61,8 +49,8 @@ const PostBox: React.FC<PostBoxProps> = ({ heldObject, onObjectSent, setPostedOb
             {postedObject && (
                 <primitive object={postedObject} />
             )}
-        </RigidBody>
+        </group>
     );
-};
+});
 
 export default PostBox;

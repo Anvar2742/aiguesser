@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useThree } from '@react-three/fiber';
+import { ThreeEvent, useThree } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
 import Chat from './Chat';
 import { Position } from './utills';
@@ -7,7 +7,7 @@ import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Mesh, Object3D, Vector3 } from 'three';
+import { Group, Mesh, Object3D, Vector3 } from 'three';
 import { OrbitControls, Text } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer } from 'playroomkit';
@@ -22,7 +22,9 @@ const Room: React.FC = () => {
     const [heldObject, setHeldObject] = useState<Object3D | null>(null)
 
     // Post box
-    const [postedObject, setPostedObject] = useState<Mesh | null>(null);
+    const [postedObject, setPostedObject] = useState<Object3D | null>(null);
+    const postBoxRef = useRef<Group>(null);
+
     // Multiplayer (all letters)
     const { letters, addLetter, updateLetter } = useLetters();
     const { scene } = useThree()
@@ -58,22 +60,45 @@ const Room: React.FC = () => {
         e.stopPropagation()
     }
 
-    const handleRightClick = (e: any) => {
+    /**
+     * Drop held object to the clicked position
+     * @param e ThreeEvent<MouseEvent>
+     */
+    const dropObject = (e: ThreeEvent<MouseEvent>) => {
         if (heldObject) {
-            // Ensure the heldObject exists and is part of the scene
-            const worldPosition = new Vector3(); // Create a vector to store the world position
-            heldObject.getWorldPosition(worldPosition); // Get the current world position of the held object
-            console.log(worldPosition);
-            
             // Detach the held object from the player
             scene.attach(heldObject);
 
             // Update the held object's position to the clicked position
-            heldObject.position.copy(e.point); // Set position to the clicked point in the world
+            heldObject.position.copy(e.point.add(new Vector3(0, 1, 0))); // Set position to the clicked point in the world
             heldObject.updateMatrixWorld(); // Ensure the matrix is updated to reflect the new position
 
             // Release the held object
             setHeldObject(null);
+        }
+    };
+
+
+    /**
+     * Put the held object in the post box
+     * @param e ThreeEvent<MouseEvent>
+     */
+    const putObjectInPost = (e: ThreeEvent<MouseEvent>) => {
+        e.stopPropagation();
+        // console.log(e);
+
+        if (heldObject && postBoxRef.current) {
+            // Attach the held object to the post box
+            postBoxRef.current.attach(heldObject);
+
+            // Position the held object near the post box with an offset
+            heldObject.position.copy(new Vector3(0, 1, 0));
+            heldObject.updateMatrixWorld(); // Ensure the matrix is updated to reflect the new position
+            // console.log(postBoxRef.current);
+
+            // Set the held object as posted
+            setPostedObject(heldObject);
+            setHeldObject(null)
         }
     };
 
@@ -90,7 +115,7 @@ const Room: React.FC = () => {
             />
             {/* <Chat /> */}
             <Physics>
-                <Plane onPlaneClick={handlePlaneClick} onRightClick={handleRightClick} />
+                <Plane onPlaneClick={handlePlaneClick} onRightClick={dropObject} />
                 <Character targetPosition={targetPosition} onArrival={handleArrival} ref={playerRef} />
                 {indicatorPosition && (
                     <mesh position={[indicatorPosition.x, 0, indicatorPosition.z]}>
@@ -105,7 +130,7 @@ const Room: React.FC = () => {
                             <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} />
                         )
                     })}
-                <PostBox heldObject={heldObject} onObjectSent={handleObjectSent} postedObject={postedObject} setPostedObject={setPostedObject} />
+                <PostBox onObjectSent={handleObjectSent} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
             </Physics>
             <gridHelper args={[30, 15]} />
             <OrbitControls />
