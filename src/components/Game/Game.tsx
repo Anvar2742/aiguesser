@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Room from "../Experience/Room";
 import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
-import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three";
+import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap, Vector3 } from "three";
 import Loader from "../Loader";
 
 const Game = () => {
@@ -63,6 +63,7 @@ const Game = () => {
                     from: player.id,
                     to: null,
                     msg: "",
+                    position: new Vector3(0, 0, 0),
                     uuid: newLetterMesh.uuid
                 }    
                 // Add the new Mesh object directly to the state

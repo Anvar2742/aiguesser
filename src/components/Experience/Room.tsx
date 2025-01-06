@@ -19,14 +19,14 @@ const Room: React.FC = () => {
     const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
 
     // Interaction
-    const [heldObject, setHeldObject] = useState<any | null>(null)
+    const [heldObject, setHeldObject] = useState<Mesh | null>(null)
 
     // Post box
-    const [postedObject, setPostedObject] = useState<any | null>(null);
+    const [postedObject, setPostedObject] = useState<Mesh | null>(null);
     const postBoxRef = useRef<Group>(null);
 
     // Multiplayer (all letters)
-    const { letters, addLetter, updateLetterOwner } = useLetters();
+    const { letters, addLetter, updateLetter } = useLetters();
     const { scene } = useThree()
 
     // Update targetPosition & indicatorPosition
@@ -81,7 +81,6 @@ const Room: React.FC = () => {
      */
     const putObjectInPost = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        // console.log(e);
 
         if (heldObject && postBoxRef.current) {
             // Attach the held object to the post box
@@ -90,7 +89,7 @@ const Room: React.FC = () => {
             // Position the held object near the post box with an offset
             heldObject.position.copy(new Vector3(0, 1, 0));
             heldObject.updateMatrixWorld(); // Ensure the matrix is updated to reflect the new position
-            // console.log(postBoxRef.current);
+            console.log(heldObject);
 
             // Set the held object as posted
             setPostedObject(heldObject);
@@ -115,19 +114,59 @@ const Room: React.FC = () => {
                 to,
                 from: myPlayer()?.id,
                 uuid: postedObject.uuid,
+                position: postedObject.getWorldPosition(new Vector3()),
                 msg: postedObject.userData.msg,
             }
-            updateLetterOwner(updatedLetter)
+            updateLetter(updatedLetter)
 
             // Set the posted object as null
             setPostedObject(null);
         }
     }
 
+
+    /**
+     * Update the message of the letter mesh
+     * @param msg string
+     */
+    const updateLetterMessage = (msg: string) => {
+        if (heldObject) {
+            // heldObject.userData.msg = msg
+            const existingLetter = letters.find((letter: Letter) => letter.uuid === heldObject.uuid)
+            if (!existingLetter) return
+            const updatedLetter: Letter = {
+                ...existingLetter,
+                msg: msg,
+            }
+            updateLetter(updatedLetter)
+        }
+    }
+
+    // add event on tab key press
     useEffect(() => {
-      console.log(letters)
-    }, [letters])
-    
+        console.log(heldObject)
+        const handleKeyDown = (e: KeyboardEvent) => {
+            e.preventDefault()
+            if (e.key === "Tab") {
+                if (heldObject) {
+                    const msg = prompt("Enter the message", heldObject.userData.msg)
+                    if (msg) {
+                        updateLetterMessage(msg)
+                    }
+                }
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [heldObject])
+
+    useEffect(() => {
+        console.log(postedObject)
+    }, [postedObject])
+
 
     return (
         <>

@@ -45,7 +45,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 name='post-box'
             >
                 <boxGeometry args={[1, 1, 1]} />
-                <meshStandardMaterial color="yellow" />
+                <meshStandardMaterial color="yellow" wireframe />
             </mesh>
             <mesh
                 onClick={(e) => onObjectSent(e, toPlayer)}

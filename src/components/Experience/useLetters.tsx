@@ -1,10 +1,12 @@
 import { useMultiplayerState } from "playroomkit";
+import { Vector3 } from "three";
 
 export type Letter = {
     owner: string;
     from: string | null;
     to: string | null;
     msg: string | null;
+    position: Vector3;
     uuid: string;
 }
 
@@ -15,7 +17,7 @@ const useLetters = () => {
         setLetters([...letters, letter]);
     };
 
-    const updateLetterOwner = (updatedLetter: Letter) => {
+    const updateLetter = (updatedLetter: Letter) => {
         setLetters(letters.map((letter: Letter) =>
             letter.uuid === updatedLetter.uuid
                 ? updatedLetter
@@ -23,7 +25,7 @@ const useLetters = () => {
         ));
     };
 
-    return { letters, addLetter, updateLetterOwner };
+    return { letters, addLetter, updateLetter };
 };
 
 export default useLetters

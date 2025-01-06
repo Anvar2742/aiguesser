@@ -10,7 +10,7 @@ const generateRandomColor = () => {
 
 type PickableItemProps = {
     onPickUp: (item: any | null) => void;
-    letter: any;
+    letter: Letter;
     isAttached: boolean;
 };
 
@@ -37,11 +37,11 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
         <mesh
             ref={item}
             onClick={handleClick}
-            position={[2, 1, 5]}
+            position={[letter.position.x, letter.position.y, letter.position.z]}
             castShadow
             receiveShadow
             name={'letter'}
-            userData={letter.userData}
+            userData={{msg: letter.msg}}
             uuid={letter.uuid}
         >
             <boxGeometry args={[.2, .3, .1]} />
