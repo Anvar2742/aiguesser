@@ -7,7 +7,7 @@ import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Mesh } from 'three';
+import { Mesh, Object3D } from 'three';
 import { OrbitControls, Text } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer } from 'playroomkit';
@@ -19,25 +19,33 @@ const Room: React.FC = () => {
     const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
 
     // Interaction
-    const [heldObject, setHeldObject] = useState<Mesh | null>(null)
+    const [heldObject, setHeldObject] = useState<Object3D | null>(null)
 
     // Post box
     const [postedObject, setPostedObject] = useState<Mesh | null>(null);
     // Multiplayer (all letters)
     const { letters, addLetter, updateLetter } = useLetters();
-
     const { scene } = useThree()
 
+    // Update targetPosition & indicatorPosition
     const handlePlaneClick = (position: Position) => {
         setTargetPosition(position);
         setIndicatorPosition(position);
     };
 
+    // Event when player arrived
     const handleArrival = () => {
         setIndicatorPosition(null);
     };
 
-    const handlePickUp = (item: Mesh | null) => {
+    /**
+     * Attach letter mesh to the hand bone
+     * Set heldObject
+     * Set null postedObject
+     * @param item Mesh of the letter
+     * @returns void
+     */
+    const handlePickUp = (item: Object3D | null) => {
         if (!item) return
         item.position.set(0, 0, 0)
         playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item)
@@ -52,9 +60,9 @@ const Room: React.FC = () => {
         // addLetter(heldObject)
     }
 
-    useEffect(() => {
-        console.log(letters);
-    }, [letters])
+    // useEffect(() => {
+    //     console.log(letters);
+    // }, [letters])
 
     const handleRightClick = (e: any) => {
         if (heldObject) {

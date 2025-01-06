@@ -1,88 +1,145 @@
 import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer, isHost } from "playroomkit";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Room from "../Experience/Room";
 import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
 import { Mesh } from "three";
+import Loader from "../Loader";
 
 const Game = () => {
+    const playersRef = useRef<PlayerState[]>([]);
     const [players, setPlayers] = useState<PlayerState[]>([]);
-    const [status, setStatus] = useMultiplayerState('status', 0);
+    const [status, setStatus] = useMultiplayerState<number>('status', 0);
+    const [roles, setRoles] = useMultiplayerState<any>('roles', []);
+    const [loading, setLoading] = useState(true);
     const { letters, addLetter } = useLetters();
 
     const assignRoles = (players: PlayerState[]) => {
+        if (roles.length > 0) return; // Avoid reassigning roles
         if (players.length > 0) {
-            // Randomly select one player as the seeker (detective)
             const seekerIndex = Math.floor(Math.random() * players.length);
             players.forEach((player, index) => {
                 player.setState("role", index === seekerIndex ? "seeker" : "hider");
             });
+            setRoles(players.map((player) => ({
+                id: player.id,
+                role: player.getState('role')
+            })));
         }
     };
 
     const onLaunch = () => {
         if (isHost()) {
-            setStatus(1, true)
-        }
-    };
-
-    const start = async () => {
-        // Start the game
-        await insertCoin({}, onLaunch);
-
-        // Create a joystick controller for each joining player
-        onPlayerJoin((state: PlayerState) => {
-            setPlayers((players) => {
-                const updatedPlayers = [...players, state];
-                return updatedPlayers;
-            });
-            state.onQuit(() => {
-                setPlayers((players) => players.filter((p) => p.id !== state.id));
-            });
-        });
-    };
-
-
-
-    const init = () => {
-        if (isHost()) {
-            assignRoles(players);
-            setStatus(2, true);
-            if (letters.length === 0) {
-                players.forEach((player: PlayerState) => {
-                    if (player.getState('role') === 'seeker') {
-                        const letterMesh = new Mesh()
-                        letterMesh.name = "Letter"
-                        const initLetter: Letter = {
-                            owner: player.id,
-                            from: player.id,
-                            to: null,
-                            msg: "",
-                            mesh: letterMesh // Initialize mesh with a new Mesh instance
-                        };
-                        addLetter(initLetter);
-                    }
-                });
+            if (roles.length === 0) {
+                assignRoles(playersRef.current);
+                setStatus(2, true);
             }
         }
     };
 
+    const start = async () => {
+        console.log("start");
+
+        await insertCoin({}, onLaunch);
+
+        onPlayerJoin((state: PlayerState) => {
+            playersRef.current = [...playersRef.current, state];
+            setPlayers([...playersRef.current]);
+
+            state.onQuit(() => {
+                playersRef.current = playersRef.current.filter((p) => p.id !== state.id);
+                setPlayers([...playersRef.current]);
+            });
+        });
+    };
+
+    const createLettersForSeeker = () => {
+        players.forEach((player) => {
+            if (player.getState('role') === 'seeker' && letters.length < 2) {
+                const letterMesh = new Mesh();
+                letterMesh.name = "Letter";
+                const initLetter: Letter = {
+                    owner: player.id,
+                    from: player.id,
+                    to: null,
+                    msg: "",
+                    mesh: letterMesh,
+                };
+                addLetter(initLetter);
+            }
+        });
+    };
+
+    const init = () => {
+        console.log("init", status, roles);
+
+        if (isHost() && status === 1 && players.length > 1) {
+            console.log("proceed init");
+            if (roles.length === 0) {
+                assignRoles(players);
+            }
+            setStatus(2, true);
+            createLettersForSeeker();
+        }
+    };
 
     useEffect(() => {
         start();
     }, []);
 
     useEffect(() => {
-        if (players.length && status === 1 && isHost()) {
-            init()
-        }
-    }, [players]);
-    console.log(status);
+        if (players.length === 0) return;
 
-    if (status === 1) return
+        if (status === 0) {
+            setStatus(1, true);
+        } else if (status === 1) {
+            init();
+        } else if (status === 2) {
+            if (roles.length) {
+                roles.forEach((role: any) => {
+                    players.forEach((player: PlayerState) => {
+                        if (player.id === role.id) {
+                            player.setState("role", role.role);
+                        }
+                    });
+                });
+            }
+        }
+
+        if (status === 2 && myPlayer()?.getState("role")) {
+            setLoading(false);
+        }
+    }, [status, players]);
+
+    if (loading) {
+        return (
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
+                <ambientLight intensity={1} />
+                <directionalLight
+                    position={[10, 10, 10]}
+                    intensity={1}
+                    castShadow
+                    shadow-mapSize-width={1024}
+                    shadow-mapSize-height={1024}
+                />
+                <Loader />
+            </Canvas>
+        );
+    }
+
     return (
         <>
-            <p className="fixed top-0 left-0 bg-slate-800 text-white p-2">{myPlayer()?.id}</p>
+            <ul className="fixed top-0 left-0 bg-slate-800 text-white p-2">
+                <li>{myPlayer()?.id}</li>
+                <li>{myPlayer()?.getProfile().name}</li>
+                <li
+                    className={`${
+                        myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
+                    }`}
+                >
+                    Role: {myPlayer()?.getState("role")}
+                </li>
+            </ul>
             <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
                 <Room />
             </Canvas>

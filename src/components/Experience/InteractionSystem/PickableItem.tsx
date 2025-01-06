@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RigidBody } from '@react-three/rapier';
-import { useFrame, useLoader } from '@react-three/fiber';
-import { Mesh } from 'three';
+import { ThreeEvent, useFrame, useLoader } from '@react-three/fiber';
+import { Mesh, Object3D } from 'three';
 import { Letter } from '../useLetters';
 
 const generateRandomColor = () => {
@@ -9,7 +9,7 @@ const generateRandomColor = () => {
 };
 
 type PickableItemProps = {
-    onPickUp: (item: Mesh | null) => void;
+    onPickUp: (item: Object3D | null) => void;
     letter: Letter;
     isAttached: boolean;
 };
@@ -18,11 +18,11 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
     const [color, setColor] = useState(generateRandomColor);
     const item = useRef<any | null>(null);
 
-    const handleClick = (e: any) => {
+    const handleClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-        console.log(e.object);
-
-        onPickUp(e.object);
+        // console.log(e);
+        
+        onPickUp(e.eventObject);
     };
 
 
@@ -32,9 +32,9 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
         }
     });
 
-    useEffect(() => {
-        console.log(item.current);
-    }, [item.current])
+    // useEffect(() => {
+    //     console.log(item.current);
+    // }, [item.current])
 
 
     return (

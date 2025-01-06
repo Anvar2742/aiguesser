@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mesh } from 'three';
+import { Mesh, Object3D } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
 import useLetters from './useLetters';
 
 type PostBoxProps = {
-    heldObject: Mesh | null; // The object currently held by the player
+    heldObject: Object3D | null; // The object currently held by the player
     onObjectSent: (e: any) => void; // Callback to inform the parent when the object is sent
     setPostedObject: any;
     postedObject: Mesh | null;
