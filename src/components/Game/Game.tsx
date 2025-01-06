@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Room from "../Experience/Room";
 import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
-import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap, Vector3 } from "three";
+import { Mesh, Vector3 } from "three";
 import Loader from "../Loader";
 
 const Game = () => {

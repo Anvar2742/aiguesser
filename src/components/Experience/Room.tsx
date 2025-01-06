@@ -9,7 +9,7 @@ import PostBox from './PostBox';
 import { Group, Mesh, Vector3 } from 'three';
 import { OrbitControls } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
-import { myPlayer, usePlayersList } from 'playroomkit';
+import { myPlayer } from 'playroomkit';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -27,8 +27,6 @@ const Room: React.FC = () => {
     // Multiplayer (all letters & players)
     const { letters, updateLetter } = useLetters();
     const { scene } = useThree()
-    const players = usePlayersList();
-
 
     // Update targetPosition & indicatorPosition
     const handlePlaneClick = (position: Position) => {

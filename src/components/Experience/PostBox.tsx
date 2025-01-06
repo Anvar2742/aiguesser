@@ -25,19 +25,9 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
         }
     })
 
-    // TEMP
-    // useEffect(() => {
-    //     if (players.length > 0) {
-    //         const player = players.find((p) => p.id !== myPlayer()?.id)
-    //         console.log(player)
-    //         setToPlayer(player ?? null)
-    //     }
-    // }, [players])
-
-
     /**
-     * Open prompt on E key press
-     * create a prompt for the user to choose a recipient
+     * Handle the key press event
+     * Set the recipient as seeker for the hiders
      */
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -48,8 +38,6 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 console.log("You need to have an object to send")
             }
         }
-
-        console.log(toPlayer);
 
         if (myPlayer().getState("role") === "seeker") {
             window.addEventListener("keydown", handleKeyDown)
