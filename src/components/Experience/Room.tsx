@@ -167,6 +167,11 @@ const Room: React.FC = () => {
         }
     }, [heldObject])
 
+    // useEffect(() => {
+    //   console.log("letters", letters)
+    // }, [letters])
+    
+
     return (
         <>
             <ambientLight intensity={0.8} />

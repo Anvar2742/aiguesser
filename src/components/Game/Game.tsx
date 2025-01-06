@@ -1,4 +1,4 @@
-import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer, isHost } from "playroomkit";
+import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer, isHost, Bot } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
 import Room from "../Experience/Room";
 import { Canvas } from "@react-three/fiber";
@@ -14,20 +14,8 @@ const Game = () => {
     const [loading, setLoading] = useState(true);
     const { letters, addLetter } = useLetters();
 
-    const assignRoles = (players: PlayerState[]) => {
-        if (roles.length > 0) return; // Avoid reassigning roles
-        if (players.length > 0) {
-            const seekerIndex = Math.floor(Math.random() * players.length);
-            players.forEach((player, index) => {
-                player.setState("role", index === seekerIndex ? "seeker" : "hider");
-                player.setState("postAddress", index);
-            });
-            setRoles(players.map((player) => ({
-                id: player.id,
-                role: player.getState('role')
-            })));
-        }
-    };
+
+
 
     const onLaunch = () => {
         if (isHost()) {
@@ -41,7 +29,18 @@ const Game = () => {
     const start = async () => {
         console.log("start");
 
-        await insertCoin({}, onLaunch);
+        await insertCoin({
+            enableBots: true,
+            botOptions: {
+                botClass: MyBot,  // Specifies the bot class to be utilized by the SDK
+
+                // OPTIONAL: You can define custom attributes in the botParams object if you need them during bot initialization.
+                // Sample botParams
+                botParams: {
+                    health: 100
+                }
+            },
+        }, onLaunch);
 
         onPlayerJoin((state: PlayerState) => {
             playersRef.current = [...playersRef.current, state];
@@ -54,9 +53,50 @@ const Game = () => {
         });
     };
 
+    class MyBot extends Bot {
+        // Implement your bot logic and methods here
+
+        // Sample Bot Code
+        constructor(botParams: Object) {
+            super(botParams);
+            this.setState("health", 100);
+        }
+    }
+
+    const assignRoles = (players: PlayerState[]) => {
+        if (roles.length > 0) return; // Avoid reassigning roles
+        if (players.length > 0) {
+            // Choose a seeker through human players
+            const humanPlayers = players.filter((player) => !player.isBot());
+            const seekerIndex = Math.floor(Math.random() * humanPlayers.length);
+            humanPlayers.forEach((player, index) => {
+                player.setState("role", index === seekerIndex ? "seeker" : "hider");
+            });
+            // Assign hider roles to all the bots
+            const bots = players.filter((player) => player.isBot());
+            bots.forEach((player) => {
+                player.setState("role", "hider");
+            });
+            // Mix the human players and bots
+            const mixedPlayers = [...humanPlayers, ...bots];
+            // Shuffle the mixed players
+            mixedPlayers.sort(() => Math.random() - 0.5);
+            // Assign post addresses
+            mixedPlayers.forEach((player, index) => {
+                player.setState("postAddress", index);
+            });
+
+            setRoles(players.map((player) => ({
+                id: player.id,
+                role: player.getState('role')
+            })));
+        }
+    };
+
     const createLettersForSeeker = () => {
         players.forEach((player) => {
             if (player.getState('role') === 'seeker' && letters.length < 1) {
+                console.log("player", player)
                 const newLetterMesh = new Mesh()
                 // Create a new Mesh instance
                 const newLetter: Letter = {
@@ -72,7 +112,6 @@ const Game = () => {
             }
         });
     };
-
 
     const init = () => {
         console.log("init", status, roles);
@@ -93,7 +132,7 @@ const Game = () => {
 
     useEffect(() => {
         if (players.length === 0) return;
-
+        console.log("players", players);
         if (status === 0) {
             setStatus(1, true);
         } else if (status === 1) {
