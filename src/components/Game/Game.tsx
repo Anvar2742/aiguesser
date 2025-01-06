@@ -59,20 +59,20 @@ const Game = () => {
             if (player.getState('role') === 'seeker' && letters.length < 1) {
                 const newLetterMesh = new Mesh()
                 // Create a new Mesh instance
-                const newLetter: Letter  = {
+                const newLetter: Letter = {
                     owner: player.id,
                     from: player.id,
                     to: null,
                     msg: "",
                     position: new Vector3(2, 1, 2),
                     uuid: newLetterMesh.uuid
-                }    
+                }
                 // Add the new Mesh object directly to the state
                 addLetter(newLetter);
             }
         });
     };
-    
+
 
     const init = () => {
         console.log("init", status, roles);
@@ -100,10 +100,11 @@ const Game = () => {
             init();
         } else if (status === 2) {
             if (roles.length) {
-                roles.forEach((role: any) => {
-                    players.forEach((player: PlayerState) => {
+                players.forEach((player: PlayerState, i: number) => {
+                    roles.forEach((role: any) => {
                         if (player.id === role.id) {
                             player.setState("role", role.role);
+                            player.setState("postAddress", i)
                         }
                     });
                 });
@@ -143,6 +144,18 @@ const Game = () => {
                 >
                     Role: {myPlayer()?.getState("role")}
                 </li>
+                <ul>
+                    <span>List of post addresses</span>
+                    {
+                        players
+                            .filter((player: PlayerState) => player.id !== myPlayer().id)
+                            .map((player: PlayerState) => {
+                                return (
+                                    <li>{player.getState("postAddress")}</li>
+                                )
+                            })
+                    }
+                </ul>
             </ul>
             <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
                 <Room />

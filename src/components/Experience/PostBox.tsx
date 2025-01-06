@@ -42,9 +42,11 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
         const handleKeyDown = (e: KeyboardEvent) => {
             e.preventDefault()
             if (e.key === "e") {
-
+                // instead of prompt let's create radio options and list all the players' postAddresses
+                
                 const toPostAddress = prompt("Enter the recipient post address", toPlayer?.getState("postAddress") ?? "")
-                const to = players.find((p) => p.getState('postAddress') === toPostAddress)
+                if (!toPostAddress) return
+                const to = players.find((p) => +(p.getState('postAddress')) === +(toPostAddress))
                 if (to) {
                     setToPlayer(to)
                 }
@@ -55,7 +57,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    })
+    }, [toPlayer])
 
     return (
         <group

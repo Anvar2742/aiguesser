@@ -104,7 +104,8 @@ const Room: React.FC = () => {
      */
     const sendLetter = (e: ThreeEvent<MouseEvent>, to: string | null) => {
         e.stopPropagation()
-        if (!to) {
+
+        if (to === null) {
             console.error("No recipient selected")
             return
         }
@@ -193,7 +194,7 @@ const Room: React.FC = () => {
                         .filter((letter: Letter) => letter.owner === myPlayer()?.id)
                         .map((letter: Letter) => {
                             return (
-                                <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} />
+                                <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} key={letter.uuid} />
                             )
                         })
                 }
