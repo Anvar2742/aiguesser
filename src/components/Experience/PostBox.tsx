@@ -1,7 +1,7 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Group, Mesh, Object3D } from 'three';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Color, Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
-import useLetters from './useLetters';
+import { Text } from '@react-three/drei';
 import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
 
 type PostBoxProps = {
@@ -14,6 +14,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     const postBoxRef = useRef<Group>(null);
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const players = usePlayersList();
+    const [isChossingRecipient, setIsChossingRecipient] = useState(false)
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => postBoxRef.current);
@@ -41,23 +42,33 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             e.preventDefault()
-            if (e.key === "e") {
-                // instead of prompt let's create radio options and list all the players' postAddresses
-                
-                const toPostAddress = prompt("Enter the recipient post address", toPlayer?.getState("postAddress") ?? "")
-                if (!toPostAddress) return
-                const to = players.find((p) => +(p.getState('postAddress')) === +(toPostAddress))
-                if (to) {
-                    setToPlayer(to)
-                }
+            if (e.key === "e" && postedObject) {
+                setIsChossingRecipient(!isChossingRecipient)
+            } else {
+                console.log("You need to have an object to send")
             }
         }
 
-        window.addEventListener("keydown", handleKeyDown)
+        console.log(toPlayer);
+
+        if (myPlayer().getState("role") === "seeker") {
+            window.addEventListener("keydown", handleKeyDown)
+        } else if (!toPlayer) {
+            const seekerPlayer = players.find((p: PlayerState) => p.getState("role") === "seeker")
+            if (!seekerPlayer) return
+            setToPlayer(seekerPlayer)
+        }
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [toPlayer])
+    }, [isChossingRecipient, toPlayer, postedObject])
+
+    const updateToPlayer = (e: ThreeEvent<MouseEvent>, player: PlayerState) => {
+        e.stopPropagation()
+        if (player) {
+            setToPlayer(player)
+        }
+    }
 
     return (
         <group
@@ -87,6 +98,33 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             {postedObject && (
                 <primitive object={postedObject} />
             )}
+
+            {
+                isChossingRecipient && (
+                    <>
+                        {players
+                            .filter((player: PlayerState) => player.id !== myPlayer().id)
+                            .map((player: PlayerState, i: number) => {
+                                return (
+                                    <mesh
+                                        onClick={(e) => updateToPlayer(e, player)}
+                                        castShadow
+                                        receiveShadow
+                                        position={[1 + i, 1, 1]}
+                                        key={player.id}
+                                    >
+                                        <boxGeometry args={[.5, .5, .5]} />
+                                        <meshStandardMaterial color={player.getProfile().color as unknown as Color} />
+                                        <Text fontSize={0.25} color="black" position={[0, 0, .26]}>
+                                            {player.getState("postAddress")}
+                                        </Text>
+                                    </mesh>
+                                )
+                            })
+                        }
+                    </>
+                )
+            }
         </group>
     );
 });

@@ -134,29 +134,35 @@ const Game = () => {
 
     return (
         <>
-            <ul className="fixed top-0 left-0 bg-slate-800 text-white p-2">
-                <li>{myPlayer()?.id}</li>
-                <li>Name: {myPlayer()?.getProfile().name}</li>
-                <li>Post address: {myPlayer()?.getState("postAddress")}</li>
-                <li
-                    className={`${myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
-                        }`}
-                >
-                    Role: {myPlayer()?.getState("role")}
-                </li>
+            <div className="fixed top-0 left-0 bg-slate-800 text-white p-2 z-50">
                 <ul>
-                    <span>List of post addresses</span>
+                    <li>{myPlayer()?.id}</li>
+                    <li>Name: {myPlayer()?.getProfile().name}</li>
+                    <li>My post address: {myPlayer()?.getState("postAddress")}</li>
+                    <li
+                        className={`${myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
+                            }`}
+                    >
+                        Role: {myPlayer()?.getState("role")}
+                    </li>
                     {
-                        players
-                            .filter((player: PlayerState) => player.id !== myPlayer().id)
-                            .map((player: PlayerState) => {
-                                return (
-                                    <li>{player.getState("postAddress")}</li>
-                                )
-                            })
+                        myPlayer().getState("role") === "seeker" ? (
+                            <ul>
+                                <span>List of post addresses</span>
+                                {
+                                    players
+                                        .filter((player: PlayerState) => player.id !== myPlayer().id)
+                                        .map((player: PlayerState) => {
+                                            return (
+                                                <li key={player.id}>{player.getState("postAddress")}</li>
+                                            )
+                                        })
+                                }
+                            </ul>
+                        ) : null
                     }
                 </ul>
-            </ul>
+            </div>
             <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
                 <Room />
             </Canvas>
