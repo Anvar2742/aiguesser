@@ -20,6 +20,7 @@ const Game = () => {
             const seekerIndex = Math.floor(Math.random() * players.length);
             players.forEach((player, index) => {
                 player.setState("role", index === seekerIndex ? "seeker" : "hider");
+                player.setState("postAddress", index);
             });
             setRoles(players.map((player) => ({
                 id: player.id,
@@ -63,7 +64,7 @@ const Game = () => {
                     from: player.id,
                     to: null,
                     msg: "",
-                    position: new Vector3(0, 0, 0),
+                    position: new Vector3(2, 1, 2),
                     uuid: newLetterMesh.uuid
                 }    
                 // Add the new Mesh object directly to the state
@@ -134,7 +135,8 @@ const Game = () => {
         <>
             <ul className="fixed top-0 left-0 bg-slate-800 text-white p-2">
                 <li>{myPlayer()?.id}</li>
-                <li>{myPlayer()?.getProfile().name}</li>
+                <li>Name: {myPlayer()?.getProfile().name}</li>
+                <li>Post address: {myPlayer()?.getState("postAddress")}</li>
                 <li
                     className={`${myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
                         }`}

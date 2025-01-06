@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import { Group, Mesh, Object3D } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import useLetters from './useLetters';
-import { myPlayer, usePlayersList } from 'playroomkit';
+import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
 
 type PostBoxProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
@@ -12,7 +12,7 @@ type PostBoxProps = {
 
 const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, postedObject }, ref) => {
     const postBoxRef = useRef<Group>(null);
-    const [toPlayer, setToPlayer] = useState<string | null>(null)
+    const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const players = usePlayersList();
 
     // Expose the local ref to the parent component through the forwarded ref
@@ -25,13 +25,37 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     })
 
     // TEMP
+    // useEffect(() => {
+    //     if (players.length > 0) {
+    //         const player = players.find((p) => p.id !== myPlayer()?.id)
+    //         console.log(player)
+    //         setToPlayer(player ?? null)
+    //     }
+    // }, [players])
+
+
+    /**
+     * Open prompt on E key press
+     * create a prompt for the user to choose a recipient
+     */
     useEffect(() => {
-        if (players.length > 0) {
-            const player = players.find((p) => p.id !== myPlayer()?.id)
-            console.log(player)
-            setToPlayer(player?.id ?? null)
+        const handleKeyDown = (e: KeyboardEvent) => {
+            e.preventDefault()
+            if (e.key === "e") {
+
+                const toPostAddress = prompt("Enter the recipient post address", toPlayer?.getState("postAddress") ?? "")
+                const to = players.find((p) => p.getState('postAddress') === toPostAddress)
+                if (to) {
+                    setToPlayer(to)
+                }
+            }
         }
-    }, [players])
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    })
 
     return (
         <group
@@ -48,7 +72,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 <meshStandardMaterial color="yellow" wireframe />
             </mesh>
             <mesh
-                onClick={(e) => onObjectSent(e, toPlayer)}
+                onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
                 castShadow
                 receiveShadow
                 position={[.75, .25, .25]}

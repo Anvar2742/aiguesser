@@ -1,16 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ThreeEvent, useThree } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
-import Chat from './Chat';
 import { Position } from './utills';
 import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Group, Mesh, Vector3, BufferGeometry, Material, NormalBufferAttributes, Object3DEventMap, ObjectLoader } from 'three';
-import { OrbitControls, Text } from '@react-three/drei';
+import { Group, Mesh, Vector3 } from 'three';
+import { OrbitControls } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
-import { myPlayer } from 'playroomkit';
+import { myPlayer, usePlayersList } from 'playroomkit';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -25,9 +24,11 @@ const Room: React.FC = () => {
     const [postedObject, setPostedObject] = useState<Mesh | null>(null);
     const postBoxRef = useRef<Group>(null);
 
-    // Multiplayer (all letters)
-    const { letters, addLetter, updateLetter } = useLetters();
+    // Multiplayer (all letters & players)
+    const { letters, updateLetter } = useLetters();
     const { scene } = useThree()
+    const players = usePlayersList();
+
 
     // Update targetPosition & indicatorPosition
     const handlePlaneClick = (position: Position) => {
@@ -89,7 +90,7 @@ const Room: React.FC = () => {
             // Position the held object near the post box with an offset
             heldObject.position.copy(new Vector3(0, 1, 0));
             heldObject.updateMatrixWorld(); // Ensure the matrix is updated to reflect the new position
-            console.log(heldObject);
+            // console.log(heldObject);
 
             // Set the held object as posted
             setPostedObject(heldObject);
@@ -142,9 +143,13 @@ const Room: React.FC = () => {
         }
     }
 
-    // add event on tab key press
+    //**
+    // Add Tab press event
+    // Prompt for new message
+    // Update message
+    //  */
     useEffect(() => {
-        console.log(heldObject)
+        // console.log(heldObject)
         const handleKeyDown = (e: KeyboardEvent) => {
             e.preventDefault()
             if (e.key === "Tab") {
@@ -162,11 +167,6 @@ const Room: React.FC = () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [heldObject])
-
-    useEffect(() => {
-        console.log(postedObject)
-    }, [postedObject])
-
 
     return (
         <>
