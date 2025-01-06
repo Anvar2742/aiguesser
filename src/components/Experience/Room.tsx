@@ -7,7 +7,7 @@ import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Mesh, Object3D } from 'three';
+import { Mesh, Object3D, Vector3 } from 'three';
 import { OrbitControls, Text } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer } from 'playroomkit';
@@ -56,23 +56,27 @@ const Room: React.FC = () => {
 
     const handleObjectSent = (e: any) => {
         e.stopPropagation()
-        // console.log(heldObject);
-        // addLetter(heldObject)
     }
-
-    // useEffect(() => {
-    //     console.log(letters);
-    // }, [letters])
 
     const handleRightClick = (e: any) => {
         if (heldObject) {
-            // Reattach the held object to the scene
+            // Ensure the heldObject exists and is part of the scene
+            const worldPosition = new Vector3(); // Create a vector to store the world position
+            heldObject.getWorldPosition(worldPosition); // Get the current world position of the held object
+            console.log(worldPosition);
+            
+            // Detach the held object from the player
             scene.attach(heldObject);
 
-            // Set the object's position to the clicked position on the plane
-            heldObject.position.set(e.point.x, e.point.y, e.point.z);
+            // Update the held object's position to the clicked position
+            heldObject.position.copy(e.point); // Set position to the clicked point in the world
+            heldObject.updateMatrixWorld(); // Ensure the matrix is updated to reflect the new position
+
+            // Release the held object
+            setHeldObject(null);
         }
     };
+
 
     return (
         <>
@@ -84,7 +88,7 @@ const Room: React.FC = () => {
                 shadow-mapSize-width={1024}
                 shadow-mapSize-height={1024}
             />
-            <Chat />
+            {/* <Chat /> */}
             <Physics>
                 <Plane onPlaneClick={handlePlaneClick} onRightClick={handleRightClick} />
                 <Character targetPosition={targetPosition} onArrival={handleArrival} ref={playerRef} />

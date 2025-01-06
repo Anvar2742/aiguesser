@@ -32,10 +32,6 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
         }
     });
 
-    // useEffect(() => {
-    //     console.log(item.current);
-    // }, [item.current])
-
 
     return (
         <mesh
