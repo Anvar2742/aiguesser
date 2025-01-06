@@ -15,15 +15,15 @@ const useLetters = () => {
         setLetters([...letters, letter]);
     };
 
-    const updateLetter = (uuid: string, updatedLetter: Letter) => {
+    const updateLetterOwner = (updatedLetter: Letter) => {
         setLetters(letters.map((letter: Letter) =>
-            letter.uuid === uuid
+            letter.uuid === updatedLetter.uuid
                 ? updatedLetter
                 : letter
         ));
     };
 
-    return { letters, addLetter, updateLetter };
+    return { letters, addLetter, updateLetterOwner };
 };
 
 export default useLetters

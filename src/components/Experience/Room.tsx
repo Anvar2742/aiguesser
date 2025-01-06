@@ -26,7 +26,7 @@ const Room: React.FC = () => {
     const postBoxRef = useRef<Group>(null);
 
     // Multiplayer (all letters)
-    const { letters, addLetter, updateLetter } = useLetters();
+    const { letters, addLetter, updateLetterOwner } = useLetters();
     const { scene } = useThree()
 
     // Update targetPosition & indicatorPosition
@@ -102,21 +102,22 @@ const Room: React.FC = () => {
      * Send letters
      * @param e ThreeEvent<MouseEvent>
      */
-    const sendLetters = (e: ThreeEvent<MouseEvent>) => {
+    const sendLetter = (e: ThreeEvent<MouseEvent>, to: string | null) => {
         e.stopPropagation()
+        if (!to) {
+            console.error("No recipient selected")
+            return
+        }
         if (postedObject) {
-            // console.log('send letter', postedObject);
-            // postedObject.userData = "nothing"
-            // // Send the letter to the server
-            const updatedPostObject: Letter = {
-                owner: "",
-                to: "",
+            // Send the letter to another user
+            const updatedLetter: Letter = {
+                owner: to,
+                to,
                 from: myPlayer()?.id,
                 uuid: postedObject.uuid,
                 msg: postedObject.userData.msg,
             }
-            // console.log('send letter', updatedPostObject);
-            updateLetter(updatedPostObject.uuid, updatedPostObject);
+            updateLetterOwner(updatedLetter)
 
             // Set the posted object as null
             setPostedObject(null);
@@ -157,7 +158,7 @@ const Room: React.FC = () => {
                             )
                         })
                 }
-                <PostBox onObjectSent={sendLetters} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
+                <PostBox onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
             </Physics>
             <gridHelper args={[30, 15]} />
             <OrbitControls />
