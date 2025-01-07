@@ -150,8 +150,8 @@ const Room: React.FC = () => {
     useEffect(() => {
         // console.log(heldObject)
         const handleKeyDown = (e: KeyboardEvent) => {
-            e.preventDefault()
             if (e.key === "Tab") {
+                e.preventDefault()
                 if (heldObject) {
                     const msg = prompt("Enter the message", heldObject.userData.msg)
                     if (msg) {
@@ -166,11 +166,6 @@ const Room: React.FC = () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [heldObject])
-
-    // useEffect(() => {
-    //   console.log("letters", letters)
-    // }, [letters])
-    
 
     return (
         <>

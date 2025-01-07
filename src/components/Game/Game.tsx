@@ -67,12 +67,14 @@ const Game = () => {
         if (roles.length > 0) return; // Avoid reassigning roles
         if (players.length > 0) {
             // Choose a seeker through human players
+            // @ts-ignore
             const humanPlayers = players.filter((player) => !player.isBot());
             const seekerIndex = Math.floor(Math.random() * humanPlayers.length);
             humanPlayers.forEach((player, index) => {
                 player.setState("role", index === seekerIndex ? "seeker" : "hider");
             });
-            // Assign hider roles to all the bots
+            // Assign hider roles to all the bots 
+            // @ts-ignore
             const bots = players.filter((player) => player.isBot());
             bots.forEach((player) => {
                 player.setState("role", "hider");

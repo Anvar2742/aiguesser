@@ -3,6 +3,8 @@ import { Color, Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
+import useLetters, { Letter } from './useLetters';
+import OpenAI from 'openai';
 
 type PostBoxProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
@@ -15,6 +17,9 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const players = usePlayersList();
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
+    const [gptTime, setGptTime] = useState(true)
+
+    const { letters, updateLetter } = useLetters();
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => postBoxRef.current);
@@ -31,8 +36,8 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
      */
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            e.preventDefault()
             if (e.key === "e" && postedObject) {
+                e.preventDefault()
                 setIsChossingRecipient(!isChossingRecipient)
             } else {
                 console.log("You need to have an object to send")
@@ -57,6 +62,57 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             setToPlayer(player)
         }
     }
+
+    useEffect(() => {
+        const botLetters = letters.filter((letter) => {
+            // @ts-ignore
+            const botPlayers = players.filter((player) => player.isBot());
+            return botPlayers.some((botPlayer) => botPlayer.id === letter.owner);
+        });
+        if (!gptTime || !botLetters.length) return;
+        setGptTime(false);
+
+        if (botLetters.length) {
+            const to = players.find((player) => player.getState("role") === "seeker")?.id;
+            if (!to) return;
+            const gptLetter = async (letter: Letter) => {
+                console.log('Sending prompt to GPT:', letter.msg);
+                try {
+                    const response = await fetch("http://127.0.0.1:5001/aiguessr-vf/europe-west1/gptLetter", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-4o-mini",
+                            message: letter.msg
+                        }),
+                    });
+            
+                    const data = await response.json();
+
+                    const gptMsg = data.reply;
+
+                    // const gptMsg = completion.
+                    console.log('GPT response:', gptMsg);
+                    const gptLetter: Letter = {
+                        owner: to,
+                        to,
+                        from: letter.owner,
+                        uuid: letter.uuid,
+                        position: letter.position,
+                        msg: gptMsg,
+                    }
+                    console.log('GPT letter:', gptLetter);
+                    updateLetter(gptLetter);
+                } catch (error) {
+                    console.error('Error sending prompt to GPT:', error);
+                }
+            }
+            gptLetter(botLetters[0]);
+        }
+    }, [letters]);
+
 
     return (
         <group
