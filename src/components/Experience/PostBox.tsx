@@ -3,8 +3,6 @@ import { Color, Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
-import useLetters, { Letter } from './useLetters';
-import OpenAI from 'openai';
 
 type PostBoxProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent

@@ -159,7 +159,7 @@ const Game = () => {
 
     if (loading) {
         return (
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 10], fov: 22 }}>
                 <ambientLight intensity={1} />
                 <directionalLight
                     position={[10, 10, 10]}
@@ -204,7 +204,7 @@ const Game = () => {
                     }
                 </ul>
             </div>
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 15], fov: 40 }}>
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 10, 16], fov: 25 }}>
                 <Room />
             </Canvas>
         </>

@@ -10,6 +10,7 @@ import { Group, Mesh, Vector3 } from 'three';
 import { OrbitControls } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
+import Computer from './Computer';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -203,6 +204,7 @@ const Room: React.FC = () => {
                         })
                 }
                 <PostBox onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
+                <Computer />
             </Physics>
             <gridHelper args={[30, 15]} />
             <OrbitControls />
