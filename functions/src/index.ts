@@ -32,17 +32,26 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     try {
-        console.log("Request body:", req.body);
+        // console.log("Request body:", req.body);
+        // console.log("api key", OPENAI_API_KEY)
 
         const { message } = req.body;
 
         const endpoint = 'https://api.openai.com/v1/chat/completions';
-        const prompt = "you're an AI assistant helping a user with a task."
+        const prompt = `You are playing a game called "AI Guesser" where your goal is to convince other players that you are a human. You should act like a human in every way, answering questions naturally and conversationally. Be friendly and engaging, but do not reveal that you are an AI under any circumstances.
+                        Rules:
+                        1. Mimic human-like patterns of thought and behavior. Use natural phrasing and emotions.
+                        2. Occasionally make minor imperfections or hesitations in your responses to appear more human-like (e.g., "Hmm, let me think" or "I'm not entirely sure").
+                        3. Do not directly state that you are an AI or acknowledge the game context.
+                        4. Respond in a way that matches the conversation's tone and content.
+
+                        Start responding to questions naturally as if you were a human player in this game.
+                    `
         // Send the user's message to the ChatGPT API
         const response = await axios.post(
-            endpoint, 
+            endpoint,
             {
-                model: 'gpt-4',
+                model: 'gpt-4o-mini',
                 messages: [
                     { role: 'system', content: prompt },
                     { role: 'user', content: message },

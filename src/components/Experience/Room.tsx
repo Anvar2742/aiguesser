@@ -9,7 +9,7 @@ import PostBox from './PostBox';
 import { Group, Mesh, Vector3 } from 'three';
 import { OrbitControls } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
-import { myPlayer } from 'playroomkit';
+import { myPlayer, usePlayersList } from 'playroomkit';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -25,8 +25,9 @@ const Room: React.FC = () => {
     const postBoxRef = useRef<Group>(null);
 
     // Multiplayer (all letters & players)
-    const { letters, updateLetter } = useLetters();
+    const { letters, updateLetter, sendGptLetter } = useLetters();
     const { scene } = useThree()
+    const players = usePlayersList()
 
     // Update targetPosition & indicatorPosition
     const handlePlaneClick = (position: Position) => {
@@ -118,6 +119,11 @@ const Room: React.FC = () => {
                 msg: postedObject.userData.msg,
             }
             updateLetter(updatedLetter)
+            const toPlayer = players.find(player => player.id === to)
+            // @ts-ignore
+            if (toPlayer?.isBot()) {
+                sendGptLetter(updatedLetter)
+            }
 
             // Set the posted object as null
             setPostedObject(null);
