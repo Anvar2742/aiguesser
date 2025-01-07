@@ -207,7 +207,6 @@ const Room: React.FC = () => {
                 <Computer />
             </Physics>
             <gridHelper args={[30, 15]} />
-            <OrbitControls />
         </>
     );
 };

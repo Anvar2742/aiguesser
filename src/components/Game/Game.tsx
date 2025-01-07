@@ -175,7 +175,7 @@ const Game = () => {
 
     return (
         <>
-            <div className="fixed top-0 left-0 bg-slate-800 text-white p-2 z-50">
+            {/* <div className="fixed top-0 left-0 bg-slate-800 text-white p-2 z-50">
                 <ul>
                     <li>{myPlayer()?.id}</li>
                     <li>Name: {myPlayer()?.getProfile().name}</li>
@@ -203,7 +203,7 @@ const Game = () => {
                         ) : null
                     }
                 </ul>
-            </div>
+            </div> */}
             <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 10, 16], fov: 25 }}>
                 <Room />
             </Canvas>
