@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RigidBody } from '@react-three/rapier';
-import { ThreeEvent, useFrame, useLoader } from '@react-three/fiber';
-import { Mesh, Object3D } from 'three';
+import { ThreeEvent, useFrame } from '@react-three/fiber';
+import { Mesh } from 'three';
 import { Letter } from '../useLetters';
 import { myPlayer } from 'playroomkit';
-
-const generateRandomColor = () => {
-    return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-};
 
 type PickableItemProps = {
     onPickUp: (item: any | null) => void;
@@ -34,12 +29,12 @@ const LetterMesh = React.forwardRef<Mesh, LetterMeshProps>(({ letter, handleClic
         uuid={letter.uuid}
     >
         <boxGeometry args={[0.2, 0.3, 0.1]} />
-        <meshStandardMaterial color={letter ? "orange" : color} />
+        <meshStandardMaterial color={color} />
     </mesh>
 ));
 
 const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttached, setPostLetter }) => {
-    const [color, setColor] = useState(generateRandomColor);
+    const [color] = useState("white");
     const item = useRef<any | null>(null);
 
     const handleClick = (e: ThreeEvent<MouseEvent>) => {
@@ -59,7 +54,7 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
 
     useEffect(() => {
         // console.log("letter", letter);
-        
+
         if (letter.owner === myPlayer().id && letter.isInPostBox) {
             setPostLetter(item.current)
         } else {

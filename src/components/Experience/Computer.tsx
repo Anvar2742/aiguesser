@@ -1,6 +1,6 @@
 import { ThreeEvent, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Group as ThreeGroup, Vector3 } from 'three';
 import { Tween, Group, Easing } from '@tweenjs/tween.js';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
@@ -38,7 +38,7 @@ const Computer = () => {
                     y: lookAtPos.y,
                     z: lookAtPos.z,
                 },
-                500
+                750
             )
             .easing(Easing.Cubic.Out)
             .start();
