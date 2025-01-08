@@ -8,14 +8,18 @@ import { myPlayer, PlayerState } from 'playroomkit';
 import usePlayers from './usePlayers';
 import useLetters, { LetterUI } from './useLetters';
 import { Container, Root, Text } from '@react-three/uikit';
+import { cameraDefault } from './utills';
 
 const Computer = () => {
     const postBoxRef = useRef<ThreeGroup>(null);
     const screenRef = useRef<ThreeGroup>(null);
     const [isComp, setIsComp] = useState(false);
+    const [isDefault, setIsDefault] = useState(false);
+
     const { camera } = useThree();
     const controls = useRef<ThreeOrbitControls | null>(null);
     const tweenGroup = useRef(new Group());
+
     const { players, seeker } = usePlayers();
     const { lettersUI } = useLetters();
 
@@ -26,54 +30,85 @@ const Computer = () => {
         }
     };
 
+    const handleCameraAnimation = (targetPoint: Vector3, lookAtPos: Vector3 = new Vector3(0, 0, 0)) => {
+        if (!controls.current) return
+        // Look at the position
+        const tweenTarget = new Tween(controls.current.target)
+            .to(
+                {
+                    x: lookAtPos.x,
+                    y: lookAtPos.y,
+                    z: lookAtPos.z,
+                },
+                500
+            )
+            .easing(Easing.Cubic.Out)
+            .start();
+        tweenGroup.current.add(tweenTarget);
+
+        if (!lookAtPos.equals(new Vector3(0, 0, 0))) {
+            targetPoint.add(new Vector3(0, 0, 6))
+        }
+
+        // Tween for camera position to match the Y-axis of the target
+        const cameraTargetPosition = new Vector3(
+            targetPoint.x,
+            targetPoint.y,
+            targetPoint.z
+        );
+        console.log(cameraTargetPosition);
+
+        const tweenPos = new Tween(camera.position)
+            .to(
+                {
+                    x: cameraTargetPosition.x,
+                    y: cameraTargetPosition.y,
+                    z: cameraTargetPosition.z,
+                },
+                500
+            )
+            .onComplete(() => {
+                setIsComp(false)
+                setIsDefault(false)
+            })
+            .easing(Easing.Cubic.Out)
+            .start();
+
+        tweenGroup.current.add(tweenPos);
+    }
+
     useEffect(() => {
         if (isComp && screenRef.current) {
-            if (!controls.current) return;
-
-            const targetPoint = new Vector3(screenRef.current.position.x, screenRef.current.position.y, screenRef.current.position.z);
-
-            // Tween for controls target
-            const tweenTarget = new Tween(controls.current.target)
-                .to(
-                    {
-                        x: targetPoint.x,
-                        y: targetPoint.y,
-                    },
-                    500
-                )
-                .easing(Easing.Cubic.Out)
-                .start();
-
-            // Tween for camera position to match the Y-axis of the target
-            const cameraTargetPosition = new Vector3(
-                targetPoint.x,
-                targetPoint.y + .25,
-                targetPoint.z + 15
-            );
-
-            const tweenPos = new Tween(camera.position)
-                .to(
-                    {
-                        x: cameraTargetPosition.x,
-                        y: cameraTargetPosition.y,
-                        z: cameraTargetPosition.z,
-                    },
-                    500
-                )
-                .onComplete(() => setIsComp(false))
-                .easing(Easing.Cubic.Out)
-                .start();
-
-            tweenGroup.current.add(tweenTarget);
-            tweenGroup.current.add(tweenPos);
+            const newTargetPoint = screenRef.current.position.clone()
+            handleCameraAnimation(newTargetPoint, newTargetPoint)
         }
-    }, [isComp, camera, tweenGroup]);
+
+        if (isDefault) {
+            handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))
+        }
+    }, [isComp, isDefault, camera, tweenGroup]);
 
     useFrame(() => {
         tweenGroup.current.update();
-        // console.log(camera);
-        
     });
+
+    // Add event key press D to switch camera to default position
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {            
+            if (e.key === "Escape" || e.key === "d") {
+                e.preventDefault()
+                setIsDefault(true)
+            }
+        }
+        if (!isDefault) {
+            window.addEventListener("keydown", handleKeyDown)
+        }
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [isDefault])
+
 
     return (
         <group
@@ -92,15 +127,15 @@ const Computer = () => {
             </mesh>
 
             {/* Chat window */}
-            <group ref={screenRef} position={[0, 4, 0]}>
-                <Root backgroundColor="orange" sizeX={players.length > 3 ? 12 : 8} sizeY={4} flexDirection="row" padding={32}>
+            <group ref={screenRef} position={[0, 3, 0]}>
+                <Root backgroundColor="orange" sizeX={players.length > 3 ? 8 : 5} sizeY={3} padding={15}>
                     <Container
                         padding={15}
+                        gapColumn={2}
                         flexGrow={1}
-                        alignItems="flex-start"
-                        justifyContent="space-between"
-                        positionBottom={5}
                         backgroundColor="black"
+                        gap={20}
+
                     >
                         {
                             players.map((player: PlayerState) => {
@@ -113,15 +148,17 @@ const Computer = () => {
                                 }
 
                                 return (
-                                    <Container flexDirection="column" key={player.id}>
+                                    <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={1} padding={15}>
                                         <Text
-                                            fontSize={15}
+                                            fontSize={8}
                                             color="#f5f5f5"
                                             fontWeight={700}
-                                            backgroundColor={player.getProfile()?.color?.hex}
+                                            backgroundColor={"blue"}
                                             paddingY={4}
                                             paddingX={8}
                                             borderRadius={5}
+                                            textAlign={"center"}
+                                            alignSelf="center"
                                         >
                                             Chat with: {player.getProfile().name}
                                         </Text>
@@ -136,10 +173,10 @@ const Computer = () => {
                                                         return (
                                                             <Text
                                                                 key={index}
-                                                                fontSize={12}
+                                                                fontSize={6}
                                                                 color="#f5f5f5"
                                                                 alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
-                                                                maxWidth={300}
+                                                                maxWidth={150}
                                                                 backgroundColor={"#444"}
                                                                 borderRadius={10}
                                                                 paddingY={4}

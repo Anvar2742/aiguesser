@@ -175,42 +175,53 @@ const Room: React.FC = () => {
 
     return (
         <>
-            <ambientLight intensity={0.8} />
-            <directionalLight
-                position={[10, 10, 10]}
-                intensity={1}
-                castShadow
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
-            />
-            {/* <Chat /> */}
+            <ambientLight intensity={1} />
+            <group position={[0, 10, 5]}>
+                <directionalLight
+                    position={[0, 0, 0]}
+                    intensity={.5}
+                    castShadow
+                    shadow-mapSize-width={1024}
+                    shadow-mapSize-height={1024}
+                />
+                <mesh
+                    position={[0, 0, 0]}
+                    receiveShadow
+                    rotation={[0, 0, 0]} // Rotate the plane to make it horizontal
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <sphereGeometry args={[.5, 16, 16]} />
+                    <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
+                </mesh>
+            </group>
             <Physics>
                 <group>
                     <mesh
                         receiveShadow
+                        position={[0, 5, 0]}
                         rotation={[0, 0, 0]} // Rotate the plane to make it horizontal
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <planeGeometry args={[30, 30]} />
-                        <meshStandardMaterial color="gray" />
+                        <planeGeometry args={[20, 10]} />
+                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
                     </mesh>
                     <mesh
                         receiveShadow
-                        position={[6, 0, 0]}
+                        position={[6, 5, 0]}
                         rotation={[0, -Math.PI / 2, 0]} // Rotate the plane to make it horizontal
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <planeGeometry args={[30, 30]} />
-                        <meshStandardMaterial color="gray" />
+                        <planeGeometry args={[20, 10]} />
+                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
                     </mesh>
                     <mesh
                         receiveShadow
-                        position={[-6, 0, 0]}
+                        position={[-6, 5, 0]}
                         rotation={[0, Math.PI / 2, 0]} // Rotate the plane to make it horizontal
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <planeGeometry args={[30, 30]} />
-                        <meshStandardMaterial color="gray" />
+                        <planeGeometry args={[20, 10]} />
+                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
                     </mesh>
                 </group>
                 <Plane onPlaneClick={handlePlaneClick} onRightClick={dropObject} />

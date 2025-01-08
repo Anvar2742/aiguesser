@@ -106,7 +106,7 @@ const Game = () => {
                     from: player.id,
                     to: null,
                     msg: "",
-                    position: new Vector3(2, 1, 2),
+                    position: new Vector3(-2, .5, 5),
                     uuid: newLetterMesh.uuid
                 }
                 // Add the new Mesh object directly to the state

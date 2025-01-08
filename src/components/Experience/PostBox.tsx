@@ -31,11 +31,9 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
      */
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "e" && postedObject) {
+            if (e.key === "e") {
                 e.preventDefault()
-                setIsChossingRecipient(!isChossingRecipient)
-            } else {
-                console.log("You need to have an object to send")
+                setIsChossingRecipient((prev) => !prev)
             }
         }
 
@@ -72,6 +70,9 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             >
                 <boxGeometry args={[1, 1, 1]} />
                 <meshStandardMaterial color="yellow" />
+                <Text fontSize={0.25} color="black" position={[0, 0, .55]}>
+                    {toPlayer?.getState("postAddress")}
+                </Text>
             </mesh>
             <mesh
                 onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
