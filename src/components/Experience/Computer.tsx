@@ -47,7 +47,7 @@ const Computer = () => {
         tweenGroup.current.add(tweenTarget);
 
         if (!lookAtPos.equals(new Vector3(0, 0, 0))) {
-            targetPoint.add(new Vector3(0, 0, 6))
+            targetPoint.add(new Vector3(0, 0, 7))
         }
 
         // Tween for camera position to match the Y-axis of the target
@@ -56,7 +56,7 @@ const Computer = () => {
             targetPoint.y,
             targetPoint.z
         );
-        console.log(cameraTargetPosition);
+        // console.log(cameraTargetPosition);
 
         const tweenPos = new Tween(camera.position)
             .to(
@@ -85,6 +85,8 @@ const Computer = () => {
 
         if (isDefault) {
             handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))
+            // console.log(camera);
+            
         }
     }, [isComp, isDefault, camera, tweenGroup]);
 
@@ -94,8 +96,10 @@ const Computer = () => {
 
     // Add event key press D to switch camera to default position
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {            
-            if (e.key === "Escape" || e.key === "d") {
+        const handleKeyDown = (e: KeyboardEvent) => {     
+            // console.log(e.code);
+                   
+            if (e.code === "Escape" || e.code === "KeyD") {
                 e.preventDefault()
                 setIsDefault(true)
             }
@@ -128,7 +132,7 @@ const Computer = () => {
 
             {/* Chat window */}
             <group ref={screenRef} position={[0, 3, 0]}>
-                <Root backgroundColor="orange" sizeX={players.length > 3 ? 8 : 5} sizeY={3} padding={15}>
+                <Root backgroundColor="orange" sizeX={players.length * 1.5} sizeY={3} padding={15}>
                     <Container
                         padding={15}
                         gapColumn={2}

@@ -9,6 +9,7 @@ export type Letter = {
     msg: string | null;
     position: Vector3;
     uuid: string;
+    isInPostBox: boolean;
 }
 
 export type LetterUI = {
@@ -78,6 +79,7 @@ const useLetters = () => {
                 uuid: letter.uuid,
                 position: letter.position,
                 msg: gptMsg,
+                isInPostBox: true
             }
             // console.log('GPT letter:', gptLetter);
             updateLetter(gptLetter, true);
@@ -93,8 +95,6 @@ const useLetters = () => {
             setLettersUILocal(null)
         }
         // console.log(lettersUI);
-        
-
     }, [lettersUILocal])
     // letters from and to me
     const myLettersUI = lettersUI?.filter((letter: LetterUI) => letter.from === myPlayer().id || letter.to === myPlayer().id)

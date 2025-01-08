@@ -1,8 +1,10 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Color, Group } from 'three';
+import { Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
-import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
+import { myPlayer, PlayerState } from 'playroomkit';
+import { Container, Fullscreen, Text as TextUI } from '@react-three/uikit';
+import usePlayers from './usePlayers';
 
 type PostBoxProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
@@ -13,8 +15,8 @@ type PostBoxProps = {
 const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, postedObject }, ref) => {
     const postBoxRef = useRef<Group>(null);
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
-    const players = usePlayersList();
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
+    const { allPlayersExceptMe, players } = usePlayers()
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => postBoxRef.current);
@@ -30,6 +32,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
      * Set the recipient as seeker for the hiders
      */
     useEffect(() => {
+        
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "e") {
                 e.preventDefault()
@@ -59,7 +62,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
 
     return (
         <group
-            position={[3, .5, 6]}
+            position={[4.4, .5, 6]}
             ref={postBoxRef}
             onContextMenu={onObjectPut}
         >
@@ -78,10 +81,10 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
                 castShadow
                 receiveShadow
-                position={[.75, .25, .25]}
+                position={[.4, .6, .4]}
             >
-                <boxGeometry args={[.5, .5, .5]} />
-                <meshStandardMaterial color="red" />
+                <boxGeometry args={[.2, .2, .2]} />
+                <meshStandardMaterial color={postedObject ? "lightgreen" : "red"} metalness={.4} roughness={.1} />
             </mesh>
 
             {/* Render the posted object */}
@@ -89,32 +92,75 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 <primitive object={postedObject} />
             )}
 
-            {
-                isChossingRecipient && (
-                    <>
-                        {players
-                            .filter((player: PlayerState) => player.id !== myPlayer().id)
-                            .map((player: PlayerState, i: number) => {
-                                return (
-                                    <mesh
-                                        onClick={(e) => updateToPlayer(e, player)}
-                                        castShadow
-                                        receiveShadow
-                                        position={[1 + i, 1, 1]}
-                                        key={player.id}
-                                    >
-                                        <boxGeometry args={[.5, .5, .5]} />
-                                        <meshStandardMaterial color={player.getProfile().color as unknown as Color} />
-                                        <Text fontSize={0.25} color="black" position={[0, 0, .26]}>
-                                            {player.getState("postAddress")}
-                                        </Text>
-                                    </mesh>
-                                )
-                            })
-                        }
-                    </>
-                )
-            }
+            <Fullscreen>
+                {
+                    !isChossingRecipient && (
+                        <Container
+                            positionType="absolute"
+                            positionBottom={0}
+                            positionRight={0}
+                            backgroundColor={"gray"}
+                            backgroundOpacity={.9}
+                            flexDirection={'column'}
+                            gap={5}
+                            padding={20}
+                        >
+                            <TextUI
+                                onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
+                                fontSize={24}
+                                backgroundColor={"white"}
+                                paddingY={10}
+                                paddingX={20}
+                                borderRadius={10}
+                                borderWidth={5}
+                                borderColor={"black"}
+                                hover={{ backgroundOpacity: .9 }}>
+                                Send Letter
+                            </TextUI>
+                        </Container>
+                    )
+                }
+                {
+                    isChossingRecipient && (
+                        <Container
+                            positionType="absolute"
+                            positionBottom={0}
+                            positionRight={0}
+                            backgroundColor={"gray"}
+                            backgroundOpacity={.9}
+                            flexDirection={'column'}
+                            gap={5}
+                            padding={20}
+                        >
+                            <>
+                                {
+                                    allPlayersExceptMe.map((player: PlayerState) => {
+                                        console.log(player.getState("postAddress"));
+                                        const i: string = player.getState("postAddress")
+                                        return (
+                                            <TextUI
+                                                onClick={(e) => updateToPlayer(e, player)}
+                                                fontSize={24}
+                                                key={player.id}
+                                                backgroundColor={"white"}
+                                                paddingY={10}
+                                                paddingX={20}
+                                                borderRadius={10}
+                                                borderWidth={5}
+                                                borderColor={"black"}
+                                                hover={{ backgroundOpacity: .9 }}
+
+                                            >
+                                                Post address: {i}
+                                            </TextUI>
+                                        )
+                                    })
+                                }
+                            </>
+                        </Container>
+                    )
+                }
+            </Fullscreen>
         </group>
     );
 });

@@ -6,7 +6,7 @@ import Character from './Character';
 import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
-import { Group, Mesh, Vector3 } from 'three';
+import { Group, Mesh, SkeletonHelper, Vector3 } from 'three';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
 import Computer from './Computer';
@@ -29,6 +29,7 @@ const Room: React.FC = () => {
     const { scene } = useThree()
     const players = usePlayersList()
 
+    // console.log(playerRef.current?.fbxObject);
     // Update targetPosition & indicatorPosition
     const handlePlaneClick = (position: Position) => {
         setTargetPosition(position);
@@ -53,7 +54,13 @@ const Room: React.FC = () => {
         playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item)
 
         setHeldObject(item)
-        setPostedObject(null)
+        const existingLetter = letters.find((letter: Letter) => letter.uuid === postedObject?.uuid)
+        if (!existingLetter) return
+        const updatedLetter: Letter = {
+            ...existingLetter,
+            isInPostBox: false
+        }
+        updateLetter(updatedLetter, false)
     }
 
     /**
@@ -92,7 +99,15 @@ const Room: React.FC = () => {
             // console.log(heldObject);
 
             // Set the held object as posted
-            setPostedObject(heldObject);
+
+            const existingLetter = letters.find((letter: Letter) => letter.uuid === heldObject.uuid)
+            if (!existingLetter) return
+            const updatedLetter: Letter = {
+                ...existingLetter,
+                isInPostBox: true
+            }
+            updateLetter(updatedLetter, false)
+            // setPostedObject(heldObject);
             setHeldObject(null)
         }
     };
@@ -104,8 +119,12 @@ const Room: React.FC = () => {
     const sendLetter = (e: ThreeEvent<MouseEvent>, to: string | null) => {
         e.stopPropagation()
 
+        if (postedObject?.userData.msg.length === 0) {
+            alert("Letter empty")
+            return
+        }
         if (to === null) {
-            console.error("No recipient selected")
+            alert("No recipient selected")
             return
         }
         if (postedObject) {
@@ -117,6 +136,7 @@ const Room: React.FC = () => {
                 uuid: postedObject.uuid,
                 position: postedObject.getWorldPosition(new Vector3()),
                 msg: postedObject.userData.msg,
+                isInPostBox: true
             }
             updateLetter(updatedLetter, true)
             const toPlayer = players.find(player => player.id === to)
@@ -173,6 +193,17 @@ const Room: React.FC = () => {
         }
     }, [heldObject])
 
+    useEffect(() => {
+        if (playerRef.current && playerRef.current.fbxObject) {
+            const skeletonHelper = new SkeletonHelper(playerRef.current.fbxObject);
+            scene.add(skeletonHelper);
+
+            return () => {
+                scene.remove(skeletonHelper);
+            };
+        }
+    }, [scene]);
+
     return (
         <>
             <ambientLight intensity={1} />
@@ -207,7 +238,7 @@ const Room: React.FC = () => {
                     </mesh>
                     <mesh
                         receiveShadow
-                        position={[6, 5, 0]}
+                        position={[5, 5, 0]}
                         rotation={[0, -Math.PI / 2, 0]} // Rotate the plane to make it horizontal
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -216,7 +247,7 @@ const Room: React.FC = () => {
                     </mesh>
                     <mesh
                         receiveShadow
-                        position={[-6, 5, 0]}
+                        position={[-5, 5, 0]}
                         rotation={[0, Math.PI / 2, 0]} // Rotate the plane to make it horizontal
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -237,7 +268,7 @@ const Room: React.FC = () => {
                         .filter((letter: Letter) => letter.owner === myPlayer()?.id)
                         .map((letter: Letter) => {
                             return (
-                                <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} key={letter.uuid} />
+                                <PickableItem onPickUp={handlePickUp} letter={letter} isAttached={heldObject ? true : false} key={letter.uuid} setPostLetter={setPostedObject} />
                             )
                         })
                 }

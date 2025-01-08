@@ -44,7 +44,7 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
                 currentAction.current.fadeOut(0.1);
                 currentAction.current = null;
             }
-            console.log('No animation found for', clipName);
+            // console.log('No animation found for', clipName);
         }
     };
 

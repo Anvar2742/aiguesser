@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
 import { Mesh, Vector3 } from "three";
 import Loader from "../Loader";
+import { cameraDefault } from "../Experience/utills";
 
 const Game = () => {
     const playersRef = useRef<PlayerState[]>([]);
@@ -107,7 +108,8 @@ const Game = () => {
                     to: null,
                     msg: "",
                     position: new Vector3(-2, .5, 5),
-                    uuid: newLetterMesh.uuid
+                    uuid: newLetterMesh.uuid,
+                    isInPostBox: false
                 }
                 // Add the new Mesh object directly to the state
                 addLetter(newLetter);
@@ -159,7 +161,7 @@ const Game = () => {
 
     if (loading) {
         return (
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 7, 12], fov: 50 }}>
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault}>
                 <ambientLight intensity={1} />
                 <directionalLight
                     position={[10, 10, 10]}
@@ -204,7 +206,7 @@ const Game = () => {
                     }
                 </ul>
             </div> */}
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={{ position: [0, 10, 16], fov: 25 }}>
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault}>
                 <Room />
             </Canvas>
         </>
