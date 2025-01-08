@@ -7,7 +7,6 @@ import Plane from './Plane';
 import PickableItem from './InteractionSystem/PickableItem';
 import PostBox from './PostBox';
 import { Group, Mesh, Vector3 } from 'three';
-import { OrbitControls } from '@react-three/drei';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
 import Computer from './Computer';
@@ -15,7 +14,7 @@ import Computer from './Computer';
 const Room: React.FC = () => {
     // Position & Movement
     const playerRef = useRef<any>();
-    const [targetPosition, setTargetPosition] = useState<Position>({ x: 0, z: 1 });
+    const [targetPosition, setTargetPosition] = useState<Position>({ x: 0, z: 5 });
     const [indicatorPosition, setIndicatorPosition] = useState<Position | null>(null);
 
     // Interaction
@@ -186,6 +185,34 @@ const Room: React.FC = () => {
             />
             {/* <Chat /> */}
             <Physics>
+                <group>
+                    <mesh
+                        receiveShadow
+                        rotation={[0, 0, 0]} // Rotate the plane to make it horizontal
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <planeGeometry args={[30, 30]} />
+                        <meshStandardMaterial color="gray" />
+                    </mesh>
+                    <mesh
+                        receiveShadow
+                        position={[6, 0, 0]}
+                        rotation={[0, -Math.PI / 2, 0]} // Rotate the plane to make it horizontal
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <planeGeometry args={[30, 30]} />
+                        <meshStandardMaterial color="gray" />
+                    </mesh>
+                    <mesh
+                        receiveShadow
+                        position={[-6, 0, 0]}
+                        rotation={[0, Math.PI / 2, 0]} // Rotate the plane to make it horizontal
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <planeGeometry args={[30, 30]} />
+                        <meshStandardMaterial color="gray" />
+                    </mesh>
+                </group>
                 <Plane onPlaneClick={handlePlaneClick} onRightClick={dropObject} />
                 <Character targetPosition={targetPosition} onArrival={handleArrival} ref={playerRef} />
                 {indicatorPosition && (

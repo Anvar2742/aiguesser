@@ -1,26 +1,22 @@
 import { ThreeEvent, useFrame, useThree } from '@react-three/fiber';
-import { Environment, MeshPortalMaterial, OrbitControls } from '@react-three/drei';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Group as ThreeGroup, Quaternion, Vector3, PerspectiveCamera } from 'three';
+import { OrbitControls } from '@react-three/drei';
+import { useEffect, useRef, useState } from 'react';
+import { Group as ThreeGroup, Vector3 } from 'three';
 import { Tween, Group, Easing } from '@tweenjs/tween.js';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
-import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
+import { myPlayer, PlayerState } from 'playroomkit';
 import usePlayers from './usePlayers';
-import useLetters, { Letter, LetterUI } from './useLetters';
-import { Container, Content, Fullscreen, Root, Text } from '@react-three/uikit';
+import useLetters, { LetterUI } from './useLetters';
+import { Container, Root, Text } from '@react-three/uikit';
 
-type ComputerProps = {
-
-};
-
-const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
+const Computer = () => {
     const postBoxRef = useRef<ThreeGroup>(null);
     const screenRef = useRef<ThreeGroup>(null);
     const [isComp, setIsComp] = useState(false);
     const { camera } = useThree();
     const controls = useRef<ThreeOrbitControls | null>(null);
     const tweenGroup = useRef(new Group());
-    const { allPlayersExceptMe, players, seeker } = usePlayers();
+    const { players, seeker } = usePlayers();
     const { lettersUI } = useLetters();
 
     const computerInit = (e: ThreeEvent<MouseEvent>) => {
@@ -33,7 +29,6 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
     useEffect(() => {
         if (isComp && screenRef.current) {
             if (!controls.current) return;
-            console.log(screenRef.current);
 
             const targetPoint = new Vector3(screenRef.current.position.x, screenRef.current.position.y, screenRef.current.position.z);
 
@@ -41,6 +36,7 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
             const tweenTarget = new Tween(controls.current.target)
                 .to(
                     {
+                        x: targetPoint.x,
                         y: targetPoint.y,
                     },
                     500
@@ -50,7 +46,7 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
 
             // Tween for camera position to match the Y-axis of the target
             const cameraTargetPosition = new Vector3(
-                camera.position.x,
+                targetPoint.x,
                 targetPoint.y + .25,
                 targetPoint.z + 15
             );
@@ -64,6 +60,7 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
                     },
                     500
                 )
+                .onComplete(() => setIsComp(false))
                 .easing(Easing.Cubic.Out)
                 .start();
 
@@ -74,11 +71,13 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
 
     useFrame(() => {
         tweenGroup.current.update();
+        // console.log(camera);
+        
     });
 
     return (
         <group
-            position={[0, 0, 0]}
+            position={[0, 0, 3]}
             ref={postBoxRef}
         >
             <mesh
@@ -94,7 +93,7 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
 
             {/* Chat window */}
             <group ref={screenRef} position={[0, 4, 0]}>
-                <Root backgroundColor="orange" sizeX={8} sizeY={4} flexDirection="row" padding={32}>
+                <Root backgroundColor="orange" sizeX={players.length > 3 ? 12 : 8} sizeY={4} flexDirection="row" padding={32}>
                     <Container
                         padding={15}
                         flexGrow={1}
@@ -163,6 +162,6 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
             <OrbitControls ref={controls} />
         </group>
     );
-});
+};
 
 export default Computer;

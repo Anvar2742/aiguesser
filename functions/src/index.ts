@@ -59,7 +59,7 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
                     { role: 'user', content: message },
                 ],
                 max_tokens: 100,
-                temperature: +((Math.random() * (1.2 - 1.0) + 1.05).toFixed(2)),
+                temperature: .1,
             },
             {
                 headers: {

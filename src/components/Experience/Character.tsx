@@ -102,7 +102,7 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
                 colliders={false}
                 type="dynamic" // Ensure the RigidBody is dynamic
                 restitution={0.5} // Makes it slightly bouncy
-                position={[0, 0, 0]}
+                position={[0, 0, 5]}
                 linearDamping={0.5} // Prevent sliding
                 angularDamping={0.5}
             >

@@ -37,7 +37,7 @@ const useLetters = () => {
                 : letter
         ), true);
         if (isSending) {
-            console.log(lettersUILocal);
+            // console.log(lettersUILocal);
 
             const newLetterUI: LetterUI = {
                 from: updatedLetter.from,
@@ -50,7 +50,7 @@ const useLetters = () => {
     };
 
     const sendGptLetter = async (letter: Letter) => {
-        console.log('Sending prompt to GPT:', letter.msg);
+        // console.log('Sending prompt to GPT:', letter.msg);
         const to: string | undefined = players.find(player => player.getState("role") === "seeker")?.id
         if (!to) return
         try {
@@ -92,7 +92,7 @@ const useLetters = () => {
             setIsUIUpdate(false)
             setLettersUILocal(null)
         }
-        console.log(lettersUI);
+        // console.log(lettersUI);
         
 
     }, [lettersUILocal])

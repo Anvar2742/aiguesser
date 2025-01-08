@@ -61,7 +61,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
 
     return (
         <group
-            position={[3, .5, 3]}
+            position={[3, .5, 6]}
             ref={postBoxRef}
             onContextMenu={onObjectPut}
         >
@@ -71,7 +71,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 name='post-box'
             >
                 <boxGeometry args={[1, 1, 1]} />
-                <meshStandardMaterial color="yellow" wireframe />
+                <meshStandardMaterial color="yellow" />
             </mesh>
             <mesh
                 onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
