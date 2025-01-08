@@ -90,13 +90,16 @@ const useLetters = () => {
         if (isUIUpdate) {
             setLettersUI([...(lettersUI || []), ...(lettersUILocal || [])], true)
             setIsUIUpdate(false)
+            setLettersUILocal(null)
         }
+        console.log(lettersUI);
+        
 
     }, [lettersUILocal])
     // letters from and to me
     const myLettersUI = lettersUI?.filter((letter: LetterUI) => letter.from === myPlayer().id || letter.to === myPlayer().id)
 
-    return { letters, myLettersUI, addLetter, updateLetter, sendGptLetter };
+    return { letters, myLettersUI, lettersUI, addLetter, updateLetter, sendGptLetter };
 };
 
 export default useLetters

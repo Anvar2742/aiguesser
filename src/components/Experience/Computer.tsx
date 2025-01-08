@@ -4,7 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Group as ThreeGroup, Quaternion, Vector3, PerspectiveCamera } from 'three';
 import { Tween, Group, Easing } from '@tweenjs/tween.js';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
-import { PlayerState, usePlayersList } from 'playroomkit';
+import { myPlayer, PlayerState, usePlayersList } from 'playroomkit';
 import usePlayers from './usePlayers';
 import useLetters, { Letter, LetterUI } from './useLetters';
 import { Container, Content, Fullscreen, Root, Text } from '@react-three/uikit';
@@ -20,8 +20,8 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
     const { camera } = useThree();
     const controls = useRef<ThreeOrbitControls | null>(null);
     const tweenGroup = useRef(new Group());
-    const { allPlayersExceptMe, seeker } = usePlayers();
-    const { myLettersUI } = useLetters();
+    const { allPlayersExceptMe, players, seeker } = usePlayers();
+    const { lettersUI } = useLetters();
 
     const computerInit = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
@@ -95,49 +95,71 @@ const Computer = forwardRef<any, ComputerProps>(({ }, ref) => {
             {/* Chat window */}
             <group ref={screenRef} position={[0, 4, 0]}>
                 <Root backgroundColor="orange" sizeX={8} sizeY={4} flexDirection="row" padding={32}>
-                    <Container padding={15} flexGrow={1} alignItems="flex-start" justifyContent="space-between" positionBottom={5} backgroundColor="black">
+                    <Container
+                        padding={15}
+                        flexGrow={1}
+                        alignItems="flex-start"
+                        justifyContent="space-between"
+                        positionBottom={5}
+                        backgroundColor="black"
+                    >
                         {
-                            allPlayersExceptMe.map((player: PlayerState) => {
-                                {
-                                    return (
-                                        <Container flexDirection={"column"}>
-                                            <Text
-                                                fontSize={15}
-                                                color="#f5f5f5"
-                                                fontWeight={700}
-                                                backgroundColor={player.getProfile()?.color?.hex}
-                                                paddingY={4}
-                                                paddingX={8}
-                                            >
-                                                Chat with: {player.getProfile().name}
-                                            </Text>
-                                            <Container flexDirection={"column"} gap={10} paddingTop={15}>
-                                                {
-                                                    myLettersUI
-                                                        ?.filter((letter: LetterUI) => letter.from === player.id || letter.to === player.id)
-                                                        ?.map((letter: LetterUI) => {
-                                                            return (
-                                                                <Text
-                                                                    fontSize={12}
-                                                                    color="#f5f5f5"
-                                                                    textAlign={letter.from === seeker?.id ? "left" : "right"}
-                                                                    maxWidth={300}
-                                                                >
-                                                                    {/* {letter.from === seeker?.id ? "Seeker" : "Hider"}:  */}
-                                                                    {letter.msg ?? ''}
-                                                                </Text>
-                                                            );
-                                                        })
-                                                }
-                                            </Container>
-                                        </Container>
-                                    )
+                            players.map((player: PlayerState) => {
+                                const myRole = myPlayer().getState("role");
+                                const playerRole = player.getState("role");
+
+                                // Skip invalid combinations
+                                if ((myRole === "hider" && playerRole === "seeker") || (myRole === "seeker" && playerRole === "seeker")) {
+                                    return null;
                                 }
+
+                                return (
+                                    <Container flexDirection="column" key={player.id}>
+                                        <Text
+                                            fontSize={15}
+                                            color="#f5f5f5"
+                                            fontWeight={700}
+                                            backgroundColor={player.getProfile()?.color?.hex}
+                                            paddingY={4}
+                                            paddingX={8}
+                                            borderRadius={5}
+                                        >
+                                            Chat with: {player.getProfile().name}
+                                        </Text>
+                                        <Container flexDirection="column" gap={10} paddingTop={15}>
+                                            {
+                                                lettersUI
+                                                    ?.filter((letter: LetterUI) => {
+                                                        const isBetweenSeekerAndPlayer = (letter.from === seeker?.id && letter.to === player?.id) || (letter.from === player?.id && letter.to === seeker?.id);
+                                                        return isBetweenSeekerAndPlayer;
+                                                    })
+                                                    ?.map((letter: LetterUI, index: number) => {
+                                                        return (
+                                                            <Text
+                                                                key={index}
+                                                                fontSize={12}
+                                                                color="#f5f5f5"
+                                                                alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
+                                                                maxWidth={300}
+                                                                backgroundColor={"#444"}
+                                                                borderRadius={10}
+                                                                paddingY={4}
+                                                                paddingX={8}
+                                                            >
+                                                                {letter.msg ?? ''}
+                                                            </Text>
+                                                        );
+                                                    })
+                                            }
+                                        </Container>
+                                    </Container>
+                                );
                             })
                         }
                     </Container>
                 </Root>
             </group>
+
             <OrbitControls ref={controls} />
         </group>
     );

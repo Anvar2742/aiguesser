@@ -47,6 +47,7 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
 
                         Start responding to questions naturally as if you were a human player in this game.
                         You're not an assistant.
+                        answer maximum of 5 words.
                     `
         // Send the user's message to the ChatGPT API
         const response = await axios.post(
@@ -57,7 +58,7 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
                     { role: 'system', content: prompt },
                     { role: 'user', content: message },
                 ],
-                max_tokens: 150,
+                max_tokens: 100,
                 temperature: +((Math.random() * (1.2 - 1.0) + 1.05).toFixed(2)),
             },
             {

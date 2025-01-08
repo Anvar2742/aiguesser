@@ -8,7 +8,7 @@ const usePlayers = () => {
     const seeker = players.find((player: PlayerState) => player.getState("role") === "seeker")
 
 
-    return { allPlayersExceptMe, seeker }
+    return { allPlayersExceptMe, players, seeker }
 }
 
 export default usePlayers
