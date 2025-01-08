@@ -10,6 +10,7 @@ import { Group, Mesh, SkeletonHelper, Vector3 } from 'three';
 import useLetters, { Letter } from './useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
 import Computer from './Computer';
+import Voting from '../Game/Voting';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -274,6 +275,7 @@ const Room: React.FC = () => {
                 }
                 <PostBox onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
                 <Computer />
+                <Voting />
             </Physics>
             <gridHelper args={[30, 15]} />
         </>

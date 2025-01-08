@@ -7,11 +7,17 @@ import { Mesh, Vector3 } from "three";
 import Loader from "../Loader";
 import { cameraDefault } from "../Experience/utills";
 
+export type PlayerStatus = {
+    id: string;
+    role: string;
+    isAlive: boolean;
+}
+
 const Game = () => {
     const playersRef = useRef<PlayerState[]>([]);
     const [players, setPlayers] = useState<PlayerState[]>([]);
     const [status, setStatus] = useMultiplayerState<number>('status', 0);
-    const [roles, setRoles] = useMultiplayerState<any>('roles', []);
+    const [roles, setRoles] = useMultiplayerState<PlayerStatus[]>('roles', []);
     const [loading, setLoading] = useState(true);
     const { letters, addLetter } = useLetters();
 
@@ -60,7 +66,7 @@ const Game = () => {
         // Sample Bot Code
         constructor(botParams: Object) {
             super(botParams);
-            this.setState("health", 100);
+            // this.setState("health", 100);
         }
     }
 
@@ -86,12 +92,14 @@ const Game = () => {
             mixedPlayers.sort(() => Math.random() - 0.5);
             // Assign post addresses
             mixedPlayers.forEach((player, index) => {
-                player.setState("postAddress", index);
+                player.setState("postAddress", index)
+                player.setState("isAlive", true)
             });
 
             setRoles(players.map((player) => ({
                 id: player.id,
-                role: player.getState('role')
+                role: player.getState('role'),
+                isAlive: player.getState('isAlive')
             })));
         }
     };
@@ -144,10 +152,11 @@ const Game = () => {
         } else if (status === 2) {
             if (roles.length) {
                 players.forEach((player: PlayerState, i: number) => {
-                    roles.forEach((role: any) => {
+                    roles.forEach((role: PlayerStatus) => {
                         if (player.id === role.id) {
                             player.setState("role", role.role);
                             player.setState("postAddress", i)
+                            player.setState("isAlive", role.isAlive)
                         }
                     });
                 });
