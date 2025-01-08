@@ -46,6 +46,7 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
                         4. Respond in a way that matches the conversation's tone and content.
 
                         Start responding to questions naturally as if you were a human player in this game.
+                        You're not an assistant.
                     `
         // Send the user's message to the ChatGPT API
         const response = await axios.post(

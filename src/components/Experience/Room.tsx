@@ -119,7 +119,7 @@ const Room: React.FC = () => {
                 position: postedObject.getWorldPosition(new Vector3()),
                 msg: postedObject.userData.msg,
             }
-            updateLetter(updatedLetter)
+            updateLetter(updatedLetter, true)
             const toPlayer = players.find(player => player.id === to)
             // @ts-ignore
             if (toPlayer?.isBot()) {
@@ -145,7 +145,7 @@ const Room: React.FC = () => {
                 ...existingLetter,
                 msg: msg,
             }
-            updateLetter(updatedLetter)
+            updateLetter(updatedLetter, false)
         }
     }
 

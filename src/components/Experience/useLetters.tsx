@@ -1,4 +1,5 @@
-import { useMultiplayerState, usePlayersList } from "playroomkit";
+import { myPlayer, useMultiplayerState, usePlayersList } from "playroomkit";
+import { useEffect, useState } from "react";
 import { Vector3 } from "three";
 
 export type Letter = {
@@ -10,20 +11,42 @@ export type Letter = {
     uuid: string;
 }
 
+export type LetterUI = {
+    from: string | null;
+    to: string | null;
+    msg: string | null;
+}
+
 const useLetters = () => {
+    // Local
+    const [isUIUpdate, setIsUIUpdate] = useState(false)
+    const [lettersUILocal, setLettersUILocal] = useState<LetterUI[] | null>(null)
+    // Multiplayer
     const [letters, setLetters] = useMultiplayerState<Letter[]>('letters', []);
+    const [lettersUI, setLettersUI] = useMultiplayerState<LetterUI[] | null>('lettersUI', null);
     const players = usePlayersList()
 
     const addLetter = (letter: Letter) => {
-        setLetters([...letters, letter]);
+        setLetters([...letters, letter], true);
     };
 
-    const updateLetter = (updatedLetter: Letter) => {
+    const updateLetter = (updatedLetter: Letter, isSending: boolean) => {
         setLetters(letters.map((letter: Letter) =>
             letter.uuid === updatedLetter.uuid
                 ? updatedLetter
                 : letter
-        ));
+        ), true);
+        if (isSending) {
+            console.log(lettersUILocal);
+
+            const newLetterUI: LetterUI = {
+                from: updatedLetter.from,
+                to: updatedLetter.to,
+                msg: updatedLetter.msg
+            }
+            setLettersUILocal((prev) => prev ? [...prev, newLetterUI] : [newLetterUI])
+            setIsUIUpdate(true)
+        }
     };
 
     const sendGptLetter = async (letter: Letter) => {
@@ -56,14 +79,24 @@ const useLetters = () => {
                 position: letter.position,
                 msg: gptMsg,
             }
-            console.log('GPT letter:', gptLetter);
-            updateLetter(gptLetter);
+            // console.log('GPT letter:', gptLetter);
+            updateLetter(gptLetter, true);
         } catch (error) {
             console.error('Error sending prompt to GPT:', error);
         }
     }
 
-    return { letters, addLetter, updateLetter, sendGptLetter };
+    useEffect(() => {
+        if (isUIUpdate) {
+            setLettersUI([...(lettersUI || []), ...(lettersUILocal || [])], true)
+            setIsUIUpdate(false)
+        }
+
+    }, [lettersUILocal])
+    // letters from and to me
+    const myLettersUI = lettersUI?.filter((letter: LetterUI) => letter.from === myPlayer().id || letter.to === myPlayer().id)
+
+    return { letters, myLettersUI, addLetter, updateLetter, sendGptLetter };
 };
 
 export default useLetters
