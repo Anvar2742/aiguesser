@@ -13,8 +13,6 @@ import { cameraDefault } from './utills';
 const Computer = () => {
     const postBoxRef = useRef<ThreeGroup>(null);
     const screenRef = useRef<ThreeGroup>(null);
-    const [isComp, setIsComp] = useState(false);
-    const [isDefault, setIsDefault] = useState(false);
 
     const { camera } = useThree();
     const controls = useRef<ThreeOrbitControls | null>(null);
@@ -23,11 +21,11 @@ const Computer = () => {
     const { players, seeker } = usePlayers();
     const { lettersUI } = useLetters();
 
-    const computerInit = (e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        if (!isComp) {
-            setIsComp(true);
-        }
+    const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
+        e?.stopPropagation();
+        if (!screenRef.current) return
+        const newTargetPoint = screenRef.current.position.clone()
+        handleCameraAnimation(newTargetPoint, newTargetPoint)
     };
 
     const handleCameraAnimation = (targetPoint: Vector3, lookAtPos: Vector3 = new Vector3(0, 0, 0)) => {
@@ -65,30 +63,24 @@ const Computer = () => {
                     y: cameraTargetPosition.y,
                     z: cameraTargetPosition.z,
                 },
-                500
+                750
             )
-            .onComplete(() => {
-                setIsComp(false)
-                setIsDefault(false)
-            })
             .easing(Easing.Cubic.Out)
             .start();
 
         tweenGroup.current.add(tweenPos);
     }
 
-    useEffect(() => {
-        if (isComp && screenRef.current) {
-            const newTargetPoint = screenRef.current.position.clone()
-            handleCameraAnimation(newTargetPoint, newTargetPoint)
-        }
+    // useEffect(() => {
+    //     if (isComp && screenRef.current) {
+    //         handleCameraAnimation(newTargetPoint, newTargetPoint)
+    //     }
 
-        if (isDefault) {
-            handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))
-            // console.log(camera);
-            
-        }
-    }, [isComp, isDefault, camera, tweenGroup]);
+    //     if (isDefault) {
+    //         // console.log(camera);
+
+    //     }
+    // }, [isComp, isDefault, camera, tweenGroup]);
 
     useFrame(() => {
         tweenGroup.current.update();
@@ -96,22 +88,23 @@ const Computer = () => {
 
     // Add event key press D to switch camera to default position
     useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {     
-            // console.log(e.code);
-                   
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === "KeyF") {
+                e.preventDefault()
+                computerInit()
+            }
+
             if (e.code === "Escape" || e.code === "KeyD") {
                 e.preventDefault()
-                setIsDefault(true)
+                handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))
             }
         }
-        if (!isDefault) {
-            window.addEventListener("keydown", handleKeyDown)
-        }
+        window.addEventListener("keydown", handleKeyDown)
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [isDefault])
+    }, [])
 
 
     return (
@@ -133,6 +126,21 @@ const Computer = () => {
             {/* Chat window */}
             <group ref={screenRef} position={[0, 3, 0]}>
                 <Root backgroundColor="orange" sizeX={players.length * 1.5} sizeY={3} padding={15}>
+                    <Container
+                        positionType={"absolute"}
+                        positionRight={0}
+                        positionTop={0}
+                        backgroundColor={"red"}
+                        zIndexOffset={2}
+                        width={10}
+                        height={10}
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                    >
+                        <Text fontSize={10} color={"white"} onClick={() => handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))}>
+                            x
+                        </Text>
+                    </Container>
                     <Container
                         padding={15}
                         gapColumn={2}

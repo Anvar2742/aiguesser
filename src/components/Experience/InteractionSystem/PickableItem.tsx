@@ -58,11 +58,9 @@ const PickableItem: React.FC<PickableItemProps> = ({ onPickUp, letter, isAttache
 
 
     useEffect(() => {
-        console.log("letter", letter);
+        // console.log("letter", letter);
         
         if (letter.owner === myPlayer().id && letter.isInPostBox) {
-            console.log("cool");
-            
             setPostLetter(item.current)
         } else {
             setPostLetter(null)

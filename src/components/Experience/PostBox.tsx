@@ -81,10 +81,22 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
                 castShadow
                 receiveShadow
-                position={[.4, .6, .4]}
+                position={[0, .6, .4]}
             >
                 <boxGeometry args={[.2, .2, .2]} />
-                <meshStandardMaterial color={postedObject ? "lightgreen" : "red"} metalness={.4} roughness={.1} />
+                <meshStandardMaterial 
+                    color={postedObject ? "green" : "red"} 
+                    metalness={.4} 
+                    roughness={.1} 
+                    emissive={postedObject ? "green" : "red"} 
+                    emissiveIntensity={10} 
+                />
+                <pointLight 
+                    color={postedObject ? "green" : "red"} 
+                    intensity={1} 
+                    distance={.5} 
+                    decay={2} 
+                />
             </mesh>
 
             {/* Render the posted object */}
@@ -135,7 +147,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                             <>
                                 {
                                     allPlayersExceptMe.map((player: PlayerState) => {
-                                        console.log(player.getState("postAddress"));
+                                        // console.log(player.getState("postAddress"));
                                         const i: string = player.getState("postAddress")
                                         return (
                                             <TextUI
