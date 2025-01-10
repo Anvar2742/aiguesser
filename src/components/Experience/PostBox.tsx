@@ -80,13 +80,19 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                 name='post-box'
             >
                 <boxGeometry args={[2, 4, 2]} />
-                <meshStandardMaterial color="yellow" />
+                <meshStandardMaterial color={myPlayer().getState("isAlive") ? "yellow" : "red"} />
                 <group position={[0, 0, 1.01]}>
                     <Root backgroundColor="white" sizeX={2} sizeY={1} padding={15}>
                         <Container flexDirection={"column"} justifyContent={"center"} >
-                            <TextUI fontSize={20} fontWeight={700} color="black">
-                                {`Recipient: ${toPlayer?.getState("postAddress")}`}
-                            </TextUI>
+                            {
+                                myPlayer().getState("isAlive")
+                                    ? <TextUI fontSize={20} fontWeight={700} color="black">
+                                        {`Recipient: ${toPlayer?.getState("postAddress")}`}
+                                    </TextUI>
+                                    : <TextUI fontSize={20} fontWeight={700} color="black">
+                                        {"You're dead. You can't send letters."}
+                                    </TextUI>
+                            }
                         </Container>
                     </Root>
                 </group>
@@ -119,8 +125,33 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             )}
 
             <Fullscreen>
+                {/* {
+                    <Container
+                        positionType="absolute"
+                        positionBottom={0}
+                        positionLeft={0}
+                        backgroundColor={"gray"}
+                        backgroundOpacity={.9}
+                        flexDirection={'column'}
+                        gap={5}
+                        padding={20}
+                    >
+                        <TextUI
+                            fontSize={24}
+                            backgroundColor={"white"}
+                            paddingY={10}
+                            paddingX={20}
+                            borderRadius={10}
+                            borderWidth={5}
+                            borderColor={"red"}
+                        >
+                            Are you alive? {' '}
+                            {myPlayer().getState("isAlive")}
+                        </TextUI>
+                    </Container>
+                } */}
                 {
-                    !isChossingRecipient && (
+                    !isChossingRecipient && myPlayer().getState("isAlive") && (
                         <Container
                             positionType="absolute"
                             positionBottom={0}
@@ -147,7 +178,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                     )
                 }
                 {
-                    isChossingRecipient && (
+                    isChossingRecipient && myPlayer().getState("isAlive") && (
                         <Container
                             positionType="absolute"
                             positionBottom={0}
