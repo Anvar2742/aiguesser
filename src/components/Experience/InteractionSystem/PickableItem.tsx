@@ -28,7 +28,7 @@ const LetterMesh = React.forwardRef<Mesh, LetterMeshProps>(({ letter, handleClic
         userData={{ msg: letter.msg }}
         uuid={letter.uuid}
     >
-        <boxGeometry args={[0.2, 0.3, 0.1]} />
+        <boxGeometry args={[0.4, 0.5, 0.1]} />
         <meshStandardMaterial color={color} />
     </mesh>
 ));

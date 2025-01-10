@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ThreeEvent, useThree } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
-import { Position } from './utills';
-import Character from './Character';
-import Plane from './Plane';
-import PickableItem from './InteractionSystem/PickableItem';
-import PostBox from './PostBox';
+import { Position } from '../utills';
+import Character from '../Character';
+import Plane from '../Plane';
+import PickableItem from '../InteractionSystem/PickableItem';
+import PostBox from '../PostBox';
 import { Group, Mesh, SkeletonHelper, Vector3 } from 'three';
-import useLetters, { Letter } from './useLetters';
+import useLetters, { Letter } from '../useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
-import Computer from './Computer';
-import Voting from '../Game/Voting';
+import Computer from '../Computer';
+import Voting from '../../Game/Voting';
+import Walls from './Walls';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -49,20 +50,30 @@ const Room: React.FC = () => {
      * @param item Mesh of the letter
      * @returns void
      */
-    const handlePickUp = (item: any | null) => {
-        if (!item) return
-        item.position.set(0, 0, 0)
-        playerRef.current.fbxObject.getObjectByName("mixamorigRightHand")?.attach(item)
+    const handlePickUp = (item: Mesh | null) => {
+        if (!item) return;
+        item.position.set(0, 0, 0);
+        playerRef.current.characterScene.traverse((child: any) => {
+            if (child.isMesh) {
+                console.log(child.name);
+                
+            }
+        });
 
-        setHeldObject(item)
-        const existingLetter = letters.find((letter: Letter) => letter.uuid === postedObject?.uuid)
-        if (!existingLetter) return
+        const handBone = playerRef.current.characterScene.getObjectByName("Cube016");
+        if (handBone) {
+            handBone.attach(item);
+        }
+
+        setHeldObject(item);
+        const existingLetter = letters.find((letter: Letter) => letter.uuid === item.uuid);
+        if (!existingLetter) return;
         const updatedLetter: Letter = {
             ...existingLetter,
             isInPostBox: false
-        }
-        updateLetter(updatedLetter, false)
-    }
+        };
+        updateLetter(updatedLetter, false);
+    };
 
     /**
      * Drop held object to the clicked position
@@ -195,8 +206,8 @@ const Room: React.FC = () => {
     }, [heldObject])
 
     useEffect(() => {
-        if (playerRef.current && playerRef.current.fbxObject) {
-            const skeletonHelper = new SkeletonHelper(playerRef.current.fbxObject);
+        if (playerRef.current && playerRef.current.characterScene) {
+            const skeletonHelper = new SkeletonHelper(playerRef.current.characterScene);
             scene.add(skeletonHelper);
 
             return () => {
@@ -226,36 +237,8 @@ const Room: React.FC = () => {
                     <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
                 </mesh>
             </group>
+            <Walls />
             <Physics>
-                <group>
-                    <mesh
-                        receiveShadow
-                        position={[0, 5, 0]}
-                        rotation={[0, 0, 0]} // Rotate the plane to make it horizontal
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <planeGeometry args={[20, 10]} />
-                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
-                    </mesh>
-                    <mesh
-                        receiveShadow
-                        position={[5, 5, 0]}
-                        rotation={[0, -Math.PI / 2, 0]} // Rotate the plane to make it horizontal
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <planeGeometry args={[20, 10]} />
-                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
-                    </mesh>
-                    <mesh
-                        receiveShadow
-                        position={[-5, 5, 0]}
-                        rotation={[0, Math.PI / 2, 0]} // Rotate the plane to make it horizontal
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <planeGeometry args={[20, 10]} />
-                        <meshStandardMaterial color="white" metalness={.1} roughness={.1} />
-                    </mesh>
-                </group>
                 <Plane onPlaneClick={handlePlaneClick} onRightClick={dropObject} />
                 <Character targetPosition={targetPosition} onArrival={handleArrival} ref={playerRef} />
                 {indicatorPosition && (

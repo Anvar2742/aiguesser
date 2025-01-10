@@ -1,6 +1,6 @@
 import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer, isHost, Bot } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
-import Room from "../Experience/Room";
+import Room from "../Experience/Room/Room";
 import { Canvas } from "@react-three/fiber";
 import useLetters, { Letter } from "../Experience/useLetters";
 import { Mesh, Vector3 } from "three";

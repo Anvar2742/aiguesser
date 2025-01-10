@@ -1,106 +1,77 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import * as THREE from 'three';
+import React, { useRef, useState, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
 
-interface FBXModelProps {
-  url: string;
-  scale: number;
-  togglePlay: boolean;
-}
-
-const FBXModel: React.FC<FBXModelProps> = ({ url, scale, togglePlay }) => {
-  const group = useRef<THREE.Group>(new THREE.Group());
-  const mixer = useRef<THREE.AnimationMixer | null>(null);
-  const fbxObject = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
-  const clock = new THREE.Clock();
-  
-  useEffect(() => {
-    console.log(fbxObject)
-  }, [fbxObject.current, togglePlay])
-  
-  useEffect(() => {
-    const loader = new FBXLoader();
-    loader.load(
-      url,
-      (fbx) => {
-        fbxObject.current = fbx
-        fbx.scale.set(scale, scale, scale);        
-        // Adjust model orientation
-        fbx.rotation.x = -Math.PI / 2; // Example adjustment for FBX axis mismatch
-
-        group.current.add(fbx);
-
-        // Add SkeletonHelper for debugging
-        const skeleton = new THREE.SkeletonHelper(fbx);
-        skeleton.visible = true; // Set to false to hide helper
-        group.current.add(skeleton);
-
-        // Create AnimationMixer if animations are available
-        if (fbx.animations.length > 0) {
-          mixer.current = new THREE.AnimationMixer(fbx);
-        }
-      },
-      (xhr) => {
-        console.log(`Model ${((xhr.loaded / xhr.total) * 100).toFixed(2)}% loaded`);
-      },
-      (error) => {
-        console.error('An error occurred while loading the model:', error);
-      }
-    );
-
-    return () => {
-      // Clean up mixer
-      if (mixer.current) mixer.current.stopAllAction();
-    };
-  }, [url, scale]);
+function WorldModel({ path, togglePlay }) {
+  const { scene, animations } = useGLTF(path);
+  const mixer = useRef(null);
+  const clock = useRef(new THREE.Clock());
 
   useEffect(() => {
-    if (mixer.current) {
-      const root = mixer.current.getRoot() as THREE.Object3D;
-      const action = mixer.current.clipAction(root.animations[0]);
+    if (animations.length > 0) {
+      // Set up AnimationMixer and play the first animation
+      mixer.current = new THREE.AnimationMixer(scene);
+      const action = mixer.current.clipAction(animations[0]);
       if (togglePlay) {
         action.play();
       } else {
         action.stop();
       }
     }
-  }, [togglePlay]);
+
+    return () => {
+      // Clean up the AnimationMixer
+      if (mixer.current) {
+        mixer.current.stopAllAction();
+        mixer.current.uncacheRoot(scene);
+      }
+    };
+  }, [scene, animations, togglePlay]);
 
   useFrame(() => {
-    if (mixer.current) mixer.current.update(clock.getDelta());
+    if (mixer.current) {
+      mixer.current.update(clock.current.getDelta());
+    }
   });
 
-  return <group ref={group} />;
-};
+  return <primitive object={scene} />;
+}
 
-const AnimationTester: React.FC = () => {
+function AnimationTester() {
   const [togglePlay, setTogglePlay] = useState(false);
 
   return (
-    <>
+    <div style={{ height: "100vh", position: "relative" }}>
+      {/* Animation Toggle Button */}
       <button
         onClick={() => setTogglePlay((prev) => !prev)}
-        style={{ position: 'absolute', zIndex: 1, top: 10, left: 10 }}
+        style={{
+          position: "absolute",
+          zIndex: 10,
+          top: 20,
+          left: 20,
+          padding: "10px 20px",
+          fontSize: "16px",
+          backgroundColor: "white",
+          border: "1px solid black",
+          cursor: "pointer",
+        }}
       >
-        {togglePlay ? 'Pause Animation' : 'Play Animation'}
+        {togglePlay ? "Pause Animation" : "Play Animation"}
       </button>
-      <Canvas camera={{ position: [10, 10, 20], fov: 75, near: 0.001 }} style={{ height: "100vh", position: "fixed" }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 10, 5]} intensity={1} />
-        <OrbitControls enableDamping={true} />
-        <FBXModel url="/models/Anim.fbx" scale={1} togglePlay={togglePlay} />
-        <mesh
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]} // Rotate the plane to make it horizontal
-        >
-          <planeGeometry args={[30, 30]} />
-          <meshStandardMaterial color="green" />
-        </mesh>
+
+      {/* Canvas and Model */}
+      <Canvas gl={{ antialias: true, toneMapping: THREE.NoToneMapping }} linear>
+        <ambientLight intensity={1} />
+        <directionalLight position={[0, 10, 5]} intensity={1} />
+        <OrbitControls />
+        <WorldModel path="/models/robot.glb" togglePlay={togglePlay} />
       </Canvas>
-    </>
+    </div>
   );
-};
+}
 
 export default AnimationTester;
+
+useGLTF.preload("/models/robot.glb");

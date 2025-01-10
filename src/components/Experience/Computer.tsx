@@ -45,7 +45,7 @@ const Computer = () => {
         tweenGroup.current.add(tweenTarget);
 
         if (!lookAtPos.equals(new Vector3(0, 0, 0))) {
-            targetPoint.add(new Vector3(0, 0, 7))
+            targetPoint.add(new Vector3(0, 0, 7.5))
         }
 
         // Tween for camera position to match the Y-axis of the target
@@ -70,17 +70,6 @@ const Computer = () => {
 
         tweenGroup.current.add(tweenPos);
     }
-
-    // useEffect(() => {
-    //     if (isComp && screenRef.current) {
-    //         handleCameraAnimation(newTargetPoint, newTargetPoint)
-    //     }
-
-    //     if (isDefault) {
-    //         // console.log(camera);
-
-    //     }
-    // }, [isComp, isDefault, camera, tweenGroup]);
 
     useFrame(() => {
         tweenGroup.current.update();
@@ -147,7 +136,6 @@ const Computer = () => {
                         flexGrow={1}
                         backgroundColor="black"
                         gap={20}
-
                     >
                         {
                             players.map((player: PlayerState) => {
@@ -160,7 +148,7 @@ const Computer = () => {
                                 }
 
                                 return (
-                                    <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={1} padding={15}>
+                                    <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15}>
                                         <Text
                                             fontSize={8}
                                             color="#f5f5f5"

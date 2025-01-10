@@ -3,7 +3,7 @@ import { Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { myPlayer, PlayerState } from 'playroomkit';
-import { Container, Fullscreen, Text as TextUI } from '@react-three/uikit';
+import { Container, Fullscreen, Root, Text as TextUI } from '@react-three/uikit';
 import usePlayers from './usePlayers';
 
 type PostBoxProps = {
@@ -16,23 +16,30 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     const postBoxRef = useRef<Group>(null);
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
-    const { allPlayersExceptMe, players } = usePlayers()
+    const { allPlayersExceptMe, players, amISeeker } = usePlayers()
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => postBoxRef.current);
 
     useFrame(() => {
         if (postBoxRef.current) {
-            postedObject?.position.set(0, 1, 0);
+            postedObject?.position.set(-1.1, 1, 0);
         }
     })
+
+    useEffect(() => {
+        if (!toPlayer && amISeeker) {
+            setToPlayer(allPlayersExceptMe[0])
+        }
+    }, [])
+
 
     /**
      * Handle the key press event
      * Set the recipient as seeker for the hiders
      */
     useEffect(() => {
-        
+
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "e") {
                 e.preventDefault()
@@ -62,40 +69,47 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
 
     return (
         <group
-            position={[4.4, .5, 6]}
+            position={[4.4, 0, 6]}
             ref={postBoxRef}
             onContextMenu={onObjectPut}
         >
             <mesh
+                position={[0, 2, 0]}
                 castShadow
                 receiveShadow
                 name='post-box'
             >
-                <boxGeometry args={[1, 1, 1]} />
+                <boxGeometry args={[2, 4, 2]} />
                 <meshStandardMaterial color="yellow" />
-                <Text fontSize={0.25} color="black" position={[0, 0, .55]}>
-                    {toPlayer?.getState("postAddress")}
-                </Text>
+                <group position={[0, 0, 1.01]}>
+                    <Root backgroundColor="white" sizeX={2} sizeY={1} padding={15}>
+                        <Container flexDirection={"column"} justifyContent={"center"} >
+                            <TextUI fontSize={20} fontWeight={700} color="black">
+                                {`Recipient: ${toPlayer?.getState("postAddress")}`}
+                            </TextUI>
+                        </Container>
+                    </Root>
+                </group>
             </mesh>
             <mesh
                 onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
                 castShadow
                 receiveShadow
-                position={[0, .6, .4]}
+                position={[0, 1, 1.1]}
             >
                 <boxGeometry args={[.2, .2, .2]} />
-                <meshStandardMaterial 
-                    color={postedObject ? "green" : "red"} 
-                    metalness={.4} 
-                    roughness={.1} 
-                    emissive={postedObject ? "green" : "red"} 
-                    emissiveIntensity={10} 
+                <meshStandardMaterial
+                    color={postedObject ? "green" : "#d00000"}
+                    metalness={.4}
+                    roughness={.1}
+                    emissive={postedObject ? "green" : "#d00000"}
+                    emissiveIntensity={1}
                 />
-                <pointLight 
-                    color={postedObject ? "green" : "red"} 
-                    intensity={1} 
-                    distance={.5} 
-                    decay={2} 
+                <pointLight
+                    color={postedObject ? "green" : "#d00000"}
+                    intensity={1}
+                    distance={.5}
+                    decay={2}
                 />
             </mesh>
 

@@ -1,8 +1,8 @@
 import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
-import { Vector3, AnimationMixer, Euler, SkeletonHelper } from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { Vector3, AnimationMixer } from 'three';
+import { useGLTF } from '@react-three/drei';
 import { Position } from './utills';
 
 type CharacterProps = {
@@ -12,20 +12,22 @@ type CharacterProps = {
 
 const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }, ref) => {
     const localRef = useRef<any>();
-    const walkFBX = useLoader(FBXLoader, '/models/Walking.fbx'); // Walking animation FBX
-    const idleFBX = useLoader(FBXLoader, '/models/Idle.fbx'); // Idle animation FBX
+    const { scene: characterScene, animations: walkAnimations } = useGLTF('/models/robot.glb');
+    // const { scene: idleScene, animations: idleAnimations } = useGLTF('/models/Idle.glb'); // Idle animation
 
     const mixer = useRef<AnimationMixer | null>(null);
     const currentAction = useRef<any>(null);
 
     // Expose the local ref to the parent component through the forwarded ref
-    useImperativeHandle(ref, () => localRef.current);
+    useImperativeHandle(ref, () => ({
+        rigidBody: localRef.current, // Expose the rigid body
+        characterScene: characterScene,       // Expose the walk GLTF scene
+    }));
 
-
-    const playAnimation = (fbx: any, clipName: string, playbackRate: number = 1) => {
+    const playAnimation = (animations: any[], clipName: string, playbackRate: number = 1) => {
         if (!mixer.current) return;
 
-        const clip = fbx.animations.find((anim: { name: string }) =>
+        const clip = animations.find((anim) =>
             anim.name.toLowerCase().includes(clipName.toLowerCase())
         );
         if (clip) {
@@ -44,18 +46,22 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
                 currentAction.current.fadeOut(0.1);
                 currentAction.current = null;
             }
-            // console.log('No animation found for', clipName);
         }
     };
 
-    useImperativeHandle(ref, () => ({
-        rigidBody: localRef.current, // Expose the rigid body
-        fbxObject: walkFBX,         // Expose the FBX object
-    }));
+    useEffect(() => {
+        if (!mixer.current) {
+            mixer.current = new AnimationMixer(characterScene);
+        }
+        return () => {
+            if (mixer.current) {
+                mixer.current.stopAllAction();
+                mixer.current = null;
+            }
+        };
+    }, [characterScene]);
 
     useFrame((_, delta) => {
-        walkFBX.getObjectByName("mixamorigRightHand")?.getObjectByName("Letter")?.position.set(0, 0, 0)
-
         if (mixer.current) mixer.current.update(delta);
 
         if (localRef.current && targetPosition) {
@@ -69,10 +75,6 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
             const dz = tz - cz;
             const distance = Math.sqrt(dx * dx + dz * dz);
 
-            if (!mixer.current) {
-                mixer.current = new AnimationMixer(walkFBX);
-            }
-
             if (distance > 0.1) {
                 const vx = (dx / distance) * speed;
                 const vz = (dz / distance) * speed;
@@ -82,34 +84,35 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
 
                 // Rotate the character to face the target
                 const rotation = Math.atan2(dx, dz);
-                walkFBX.rotation.set(0, rotation, 0);
+                characterScene.rotation.set(0, rotation, 0);
 
-                playAnimation(walkFBX, 'mixamo.com', 1.5); // Play walking animation with faster speed
+                playAnimation(walkAnimations, 'walk', 1.5); // Play walking animation
             } else {
                 // Stop movement when close to target
                 localRef.current.setLinvel(new Vector3(0, 0, 0));
                 onArrival();
-                playAnimation(idleFBX, 'mixamo.com'); // Play idle animation when stopped
+                playAnimation(walkAnimations, 'idle'); // Play idle animation
             }
         }
     });
 
-
     return (
-        <>
-            <RigidBody
-                ref={localRef}
-                colliders={false}
-                type="dynamic" // Ensure the RigidBody is dynamic
-                restitution={0.5} // Makes it slightly bouncy
-                position={[0, 0, 5]}
-                linearDamping={0.5} // Prevent sliding
-                angularDamping={0.5}
-            >
-                <primitive object={walkFBX} scale={0.01} castShadow />
-            </RigidBody>
-        </>
+        <RigidBody
+            ref={localRef}
+            colliders={false}
+            type="dynamic"
+            restitution={0.5}
+            position={[0, .8, 5]}
+            linearDamping={0.5}
+            angularDamping={0.5}
+        >
+            <primitive object={characterScene} scale={0.003} castShadow />
+        </RigidBody>
     );
 });
 
 export default Character;
+
+// Preload the GLTF files
+useGLTF.preload('/models/Walking.glb');
+// useGLTF.preload('/models/Idle.glb');
