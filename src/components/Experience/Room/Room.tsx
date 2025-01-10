@@ -12,6 +12,7 @@ import { myPlayer, usePlayersList } from 'playroomkit';
 import Computer from '../Computer';
 import Voting from '../../Game/Voting';
 import Walls from './Walls';
+import usePlayers from '../usePlayers';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -29,7 +30,7 @@ const Room: React.FC = () => {
     // Multiplayer (all letters & players)
     const { letters, updateLetter, sendGptLetter } = useLetters();
     const { scene } = useThree()
-    const players = usePlayersList()
+    const { players, allPlayersExceptMe, amISeeker } = usePlayers()
 
     // console.log(playerRef.current?.fbxObject);
     // Update targetPosition & indicatorPosition
@@ -56,7 +57,7 @@ const Room: React.FC = () => {
         playerRef.current.characterScene.traverse((child: any) => {
             if (child.isMesh) {
                 console.log(child.name);
-                
+
             }
         });
 
@@ -100,7 +101,10 @@ const Room: React.FC = () => {
      */
     const putObjectInPost = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
-
+        if (!myPlayer().getState("isAlive")) {
+            alert("You are dead. You can't send letters.")
+            return
+        }
         if (heldObject && postBoxRef.current) {
             // Attach the held object to the post box
             postBoxRef.current.attach(heldObject);
@@ -138,6 +142,19 @@ const Room: React.FC = () => {
         if (to === null) {
             alert("No recipient selected")
             return
+        }
+
+        if (!myPlayer()?.getState("isAlive")) {
+            alert("You are dead. You can't send letters.")
+            return
+        }
+
+        if (amISeeker) {
+            const recipientPlayer = allPlayersExceptMe.find(player => player.id === to)
+            if (!recipientPlayer?.getState("isAlive")) {
+                alert("You killed this recipient.")
+                return
+            }
         }
         if (postedObject) {
             // Send the letter to another user
