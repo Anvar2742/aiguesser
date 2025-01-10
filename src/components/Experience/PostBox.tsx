@@ -69,7 +69,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     useEffect(() => {
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === "KeyR") {
+            if (e.code === "KeyM") {
                 e.preventDefault()
                 setIsRestart((prev) => !prev)
             }

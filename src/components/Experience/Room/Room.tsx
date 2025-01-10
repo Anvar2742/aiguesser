@@ -30,7 +30,7 @@ const Room: React.FC = () => {
     // Multiplayer (all letters & players)
     const { letters, updateLetter, sendGptLetter } = useLetters();
     const { scene } = useThree()
-    const { players, allPlayersExceptMe, amISeeker } = usePlayers()
+    const { playersForGame, allPlayersExceptMe, amISeeker } = usePlayers()
 
     // console.log(playerRef.current?.fbxObject);
     // Update targetPosition & indicatorPosition
@@ -168,7 +168,7 @@ const Room: React.FC = () => {
                 isInPostBox: true
             }
             updateLetter(updatedLetter, true)
-            const toPlayer = players.find(player => player.id === to)
+            const toPlayer = playersForGame.find(player => player.id === to)
             // @ts-ignore
             if (toPlayer?.isBot()) {
                 sendGptLetter(updatedLetter)

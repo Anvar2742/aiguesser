@@ -18,7 +18,7 @@ const Computer = () => {
     const controls = useRef<ThreeOrbitControls | null>(null);
     const tweenGroup = useRef(new Group());
 
-    const { players, seeker } = usePlayers();
+    const { playersForGame, seeker } = usePlayers();
     const { lettersUI } = useLetters();
 
     const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
@@ -95,6 +95,8 @@ const Computer = () => {
         }
     }, [])
 
+    console.log(playersForGame);
+    
 
     return (
         <group
@@ -114,7 +116,7 @@ const Computer = () => {
 
             {/* Chat window */}
             <group ref={screenRef} position={[0, 3, 0]}>
-                <Root backgroundColor="orange" sizeX={players.length * 1.5} sizeY={3} padding={15}>
+                <Root backgroundColor="orange" sizeX={playersForGame.length * 1.5} sizeY={3} padding={15}>
                     <Container
                         positionType={"absolute"}
                         positionRight={0}
@@ -138,7 +140,7 @@ const Computer = () => {
                         gap={20}
                     >
                         {
-                            players.map((player: PlayerState) => {
+                            playersForGame.map((player: PlayerState) => {
                                 const myRole = myPlayer().getState("role");
                                 const playerRole = player.getState("role");
 

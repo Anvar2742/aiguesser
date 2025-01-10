@@ -11,6 +11,7 @@ export type PlayerStatus = {
     id: string;
     role: string;
     isAlive: boolean;
+    postAddress: number;
 }
 
 const Game = () => {
@@ -89,9 +90,11 @@ const Game = () => {
             // Mix the human players and bots
             const mixedPlayers = [...humanPlayers, ...bots];
             // Shuffle the mixed players
-            mixedPlayers.sort(() => Math.random() - 0.5);
+            const shuffledPlayers = mixedPlayers.sort(() => Math.random() - 0.5);
+            console.log("shuffledPlayers", shuffledPlayers);
+
             // Assign post addresses
-            mixedPlayers.forEach((player, index) => {
+            shuffledPlayers.forEach((player, index) => {
                 player.setState("postAddress", index)
                 player.setState("isAlive", true)
             });
@@ -99,7 +102,8 @@ const Game = () => {
             setRoles(players.map((player) => ({
                 id: player.id,
                 role: player.getState('role'),
-                isAlive: player.getState('isAlive')
+                isAlive: player.getState('isAlive'),
+                postAddress: player.getState('postAddress')
             })));
         }
     };
@@ -155,7 +159,7 @@ const Game = () => {
                     roles.forEach((role: PlayerStatus) => {
                         if (player.id === role.id) {
                             player.setState("role", role.role);
-                            player.setState("postAddress", i)
+                            player.setState("postAddress", role.postAddress)
                             player.setState("isAlive", role.isAlive)
                         }
                     });
