@@ -19,7 +19,7 @@ const Game = () => {
     const [status, setStatus] = useMultiplayerState<number>('status', 0);
     const [roles, setRoles] = useMultiplayerState<PlayerStatus[]>('roles', []);
     const [loading, setLoading] = useState(true);
-    const { letters, addLetter } = useLetters();
+    const { letters, addLetter, resetLetters } = useLetters();
 
 
 
@@ -165,6 +165,19 @@ const Game = () => {
 
         if (status === 2 && myPlayer()?.getState("role")) {
             setLoading(false);
+        }
+
+        if (status === 4 && isHost()) {
+            setStatus(0, true);
+            setRoles([]);
+            setLoading(true);
+            resetLetters();
+
+            players.forEach((player) => {
+                player.setState("role", null);
+                player.setState("postAddress", null);
+                player.setState("isAlive", null);
+            });
         }
     }, [status, players]);
 

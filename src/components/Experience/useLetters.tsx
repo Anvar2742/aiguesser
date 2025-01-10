@@ -31,6 +31,11 @@ const useLetters = () => {
         setLetters([...letters, letter], true);
     };
 
+    const resetLetters = () => {
+        setLetters([], true);
+        setLettersUI(null, true);
+    };
+
     const updateLetter = (updatedLetter: Letter, isSending: boolean) => {
         setLetters(letters.map((letter: Letter) =>
             letter.uuid === updatedLetter.uuid
@@ -99,7 +104,7 @@ const useLetters = () => {
     // letters from and to me
     const myLettersUI = lettersUI?.filter((letter: LetterUI) => letter.from === myPlayer().id || letter.to === myPlayer().id)
 
-    return { letters, myLettersUI, lettersUI, addLetter, updateLetter, sendGptLetter };
+    return { letters, myLettersUI, lettersUI, addLetter, updateLetter, sendGptLetter, resetLetters };
 };
 
 export default useLetters

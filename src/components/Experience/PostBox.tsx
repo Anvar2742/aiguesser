@@ -1,8 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
-import { myPlayer, PlayerState } from 'playroomkit';
+import { isHost, myPlayer, PlayerState, useMultiplayerState } from 'playroomkit';
 import { Container, Fullscreen, Root, Text as TextUI } from '@react-three/uikit';
 import usePlayers from './usePlayers';
 
@@ -16,7 +15,10 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     const postBoxRef = useRef<Group>(null);
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
+    const [isRestart, setIsRestart] = useState(false)
     const { allPlayersExceptMe, players, amISeeker } = usePlayers()
+
+    const [, setStatus] = useMultiplayerState<number>('status', 0);
 
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => postBoxRef.current);
@@ -58,6 +60,28 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [isChossingRecipient, toPlayer, postedObject])
+
+
+    /**
+     * Handle the key press event
+     * Set the recipient as seeker for the hiders
+     */
+    useEffect(() => {
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === "KeyR") {
+                e.preventDefault()
+                setIsRestart((prev) => !prev)
+            }
+        }
+
+        if (isHost()) {
+            window.addEventListener("keydown", handleKeyDown)
+        }
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [isRestart])
 
     const updateToPlayer = (e: ThreeEvent<MouseEvent>, player: PlayerState) => {
         e.stopPropagation()
@@ -125,7 +149,8 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
             )}
 
             <Fullscreen>
-                {/* {
+                {
+                    isRestart && isHost() &&
                     <Container
                         positionType="absolute"
                         positionBottom={0}
@@ -137,6 +162,10 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                         padding={20}
                     >
                         <TextUI
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setStatus(4, true)
+                            }}
                             fontSize={24}
                             backgroundColor={"white"}
                             paddingY={10}
@@ -145,11 +174,10 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
                             borderWidth={5}
                             borderColor={"red"}
                         >
-                            Are you alive? {' '}
-                            {myPlayer().getState("isAlive")}
+                            Restart game
                         </TextUI>
                     </Container>
-                } */}
+                }
                 {
                     !isChossingRecipient && myPlayer().getState("isAlive") && (
                         <Container
