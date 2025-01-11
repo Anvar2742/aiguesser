@@ -16,7 +16,7 @@ const PostBox = forwardRef<any, PostBoxProps>(({ onObjectSent, onObjectPut, post
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
     const [isRestart, setIsRestart] = useState(false)
-    const { allPlayersExceptMe, players, amISeeker } = usePlayers()
+    const { allPlayersExceptMe, players, amISeeker, playersForGame } = usePlayers()
 
     const [, setStatus] = useMultiplayerState<number>('status', 0);
 

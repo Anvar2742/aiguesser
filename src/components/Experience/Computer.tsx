@@ -94,8 +94,6 @@ const Computer = () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [])
-
-    console.log(playersForGame);
     
 
     return (
@@ -162,7 +160,7 @@ const Computer = () => {
                                             textAlign={"center"}
                                             alignSelf="center"
                                         >
-                                            Chat with: {player.getProfile().name}
+                                            Chat with player #{player.getState("postAddress")}
                                         </Text>
                                         <Container flexDirection="column" gap={10} paddingTop={15}>
                                             {

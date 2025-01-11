@@ -35,7 +35,7 @@ const Game = () => {
     };
 
     const start = async () => {
-        console.log("start");
+        // console.log("start");
 
         await insertCoin({
             enableBots: true,
@@ -91,7 +91,7 @@ const Game = () => {
             const mixedPlayers = [...humanPlayers, ...bots];
             // Shuffle the mixed players
             const shuffledPlayers = mixedPlayers.sort(() => Math.random() - 0.5);
-            console.log("shuffledPlayers", shuffledPlayers);
+            // console.log("shuffledPlayers", shuffledPlayers);
 
             // Assign post addresses
             shuffledPlayers.forEach((player, index) => {
@@ -111,7 +111,7 @@ const Game = () => {
     const createLettersForSeeker = () => {
         players.forEach((player) => {
             if (player.getState('role') === 'seeker' && letters.length < 1) {
-                console.log("player", player)
+                // console.log("player", player)
                 const newLetterMesh = new Mesh()
                 // Create a new Mesh instance
                 const newLetter: Letter = {
@@ -130,10 +130,10 @@ const Game = () => {
     };
 
     const init = () => {
-        console.log("init", status, roles);
+        // console.log("init", status, roles);
 
         if (isHost() && status === 1 && players.length > 0) {
-            console.log("proceed init");
+            // console.log("proceed init");
             if (roles.length === 0) {
                 assignRoles(players);
             }
@@ -148,7 +148,7 @@ const Game = () => {
 
     useEffect(() => {
         if (players.length === 0) return;
-        console.log("players", players);
+        // console.log("players", players);
         if (status === 0) {
             setStatus(1, true);
         } else if (status === 1) {

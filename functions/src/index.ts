@@ -23,7 +23,6 @@ if (!admin.apps.length) {
         databaseURL: 'http://127.0.0.1:9000/?ns=aiguessr-vf-default-rtdb', // Local emulator URL
     });
 }
-console.log("Firebase initialized", admin)
 
 // Define the Cloud Function
 
@@ -69,8 +68,9 @@ exports.gptLetter = onRequest({ cors, region: "europe-west1" }, async (req: Requ
             }
         );
         // Get ChatGPT's reply
-        const reply = response.data.choices[0]?.message?.content.trim() || 'No response from ChatGPT';
-
+        const reply = response.data.choices[0]?.message?.content.trim();
+        // Delay the response to simulate a human typing speed
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 20000 + 10000));
         res.status(200).send({ reply });
     } catch (error: any) {
         console.error("Error with OpenAI API:", error.message);

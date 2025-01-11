@@ -54,12 +54,6 @@ const Room: React.FC = () => {
     const handlePickUp = (item: Mesh | null) => {
         if (!item) return;
         item.position.set(0, 0, 0);
-        playerRef.current.characterScene.traverse((child: any) => {
-            if (child.isMesh) {
-                console.log(child.name);
-
-            }
-        });
 
         const handBone = playerRef.current.characterScene.getObjectByName("Cube016");
         if (handBone) {

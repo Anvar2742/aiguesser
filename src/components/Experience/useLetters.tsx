@@ -76,7 +76,7 @@ const useLetters = () => {
             const gptMsg = data.reply;
 
             // const gptMsg = completion.
-            console.log('GPT response:', gptMsg);
+            // console.log('GPT response:', gptMsg);
             const gptLetter: Letter = {
                 owner: to,
                 to,

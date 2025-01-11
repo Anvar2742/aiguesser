@@ -27,7 +27,7 @@ const Voting = () => {
 
     const handleVote = (e: ThreeEvent<MouseEvent>, player: PlayerState) => {
         e.stopPropagation()
-        console.log(player);
+        // console.log(player);
         player.setState("isAlive", false)
         setRoles(roles.map((role: PlayerStatus) => {
             return {
