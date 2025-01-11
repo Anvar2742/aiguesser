@@ -9,7 +9,6 @@ const usePlayers = () => {
         return a.getState("postAddress") - b.getState("postAddress")
     })
     const allPlayersExceptMe = playersForGame.filter((player: PlayerState) => myPlayer().id !== player.id)
-    console.log(allPlayersExceptMe)
     const seeker = players.find((player: PlayerState) => player.getState("role") === "seeker")
     const amISeeker = seeker?.id === myPlayer().id
 

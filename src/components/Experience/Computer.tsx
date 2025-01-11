@@ -8,72 +8,27 @@ import { myPlayer, PlayerState } from 'playroomkit';
 import usePlayers from './usePlayers';
 import useLetters, { LetterUI } from './useLetters';
 import { Container, Root, Text } from '@react-three/uikit';
-import { cameraDefault } from './utills';
+import useCameraAnimation from './MyControls';
 
-const Computer = () => {
+type ComputerProps = {
+    controls: ThreeOrbitControls | null;
+}
+const Computer: React.FC<ComputerProps> = ({ controls }) => {
     const postBoxRef = useRef<ThreeGroup>(null);
     const screenRef = useRef<ThreeGroup>(null);
 
-    const { camera } = useThree();
-    const controls = useRef<ThreeOrbitControls | null>(null);
-    const tweenGroup = useRef(new Group());
-
     const { playersForGame, seeker } = usePlayers();
     const { lettersUI } = useLetters();
+    const { handleCameraAnimation } = useCameraAnimation()
+
 
     const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
         e?.stopPropagation();
         if (!screenRef.current) return
         const newTargetPoint = screenRef.current.position.clone()
-        handleCameraAnimation(newTargetPoint, newTargetPoint)
+        // console.log(newTargetPoint);
+        handleCameraAnimation(controls, screenRef.current)
     };
-
-    const handleCameraAnimation = (targetPoint: Vector3, lookAtPos: Vector3 = new Vector3(0, 0, 0)) => {
-        if (!controls.current) return
-        // Look at the position
-        const tweenTarget = new Tween(controls.current.target)
-            .to(
-                {
-                    x: lookAtPos.x,
-                    y: lookAtPos.y,
-                    z: lookAtPos.z,
-                },
-                750
-            )
-            .easing(Easing.Cubic.Out)
-            .start();
-        tweenGroup.current.add(tweenTarget);
-
-        if (!lookAtPos.equals(new Vector3(0, 0, 0))) {
-            targetPoint.add(new Vector3(0, 0, 7.5))
-        }
-
-        // Tween for camera position to match the Y-axis of the target
-        const cameraTargetPosition = new Vector3(
-            targetPoint.x,
-            targetPoint.y,
-            targetPoint.z
-        );
-        // console.log(cameraTargetPosition);
-
-        const tweenPos = new Tween(camera.position)
-            .to(
-                {
-                    x: cameraTargetPosition.x,
-                    y: cameraTargetPosition.y,
-                    z: cameraTargetPosition.z,
-                },
-                750
-            )
-            .easing(Easing.Cubic.Out)
-            .start();
-
-        tweenGroup.current.add(tweenPos);
-    }
-
-    useFrame(() => {
-        tweenGroup.current.update();
-    });
 
     // Add event key press D to switch camera to default position
     useEffect(() => {
@@ -85,7 +40,7 @@ const Computer = () => {
 
             if (e.code === "Escape" || e.code === "KeyD") {
                 e.preventDefault()
-                handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))
+                handleCameraAnimation(controls, screenRef.current, 0, true)
             }
         }
         window.addEventListener("keydown", handleKeyDown)
@@ -93,8 +48,8 @@ const Computer = () => {
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [])
-    
+    }, [controls])
+
 
     return (
         <group
@@ -126,7 +81,7 @@ const Computer = () => {
                         justifyContent={"center"}
                         alignItems={"center"}
                     >
-                        <Text fontSize={10} color={"white"} onClick={() => handleCameraAnimation(new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]))}>
+                        <Text fontSize={10} color={"white"} onClick={() => handleCameraAnimation(controls, screenRef.current, 0, true)}>
                             x
                         </Text>
                     </Container>
@@ -195,8 +150,6 @@ const Computer = () => {
                     </Container>
                 </Root>
             </group>
-
-            <OrbitControls ref={controls} />
         </group>
     );
 };

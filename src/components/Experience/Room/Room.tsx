@@ -5,7 +5,7 @@ import { Position } from '../utills';
 import Character from '../Character';
 import Plane from '../Plane';
 import PickableItem from '../InteractionSystem/PickableItem';
-import PostBox from '../PostBox';
+import PostSystem from '../PostBox/PostSystem';
 import { Group, Mesh, SkeletonHelper, Vector3 } from 'three';
 import useLetters, { Letter } from '../useLetters';
 import { myPlayer, usePlayersList } from 'playroomkit';
@@ -13,6 +13,9 @@ import Computer from '../Computer';
 import Voting from '../../Game/Voting';
 import Walls from './Walls';
 import usePlayers from '../usePlayers';
+import CanvasUI from '../CanvasUI';
+import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
+import { OrbitControls } from '@react-three/drei';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -31,6 +34,7 @@ const Room: React.FC = () => {
     const { letters, updateLetter, sendGptLetter } = useLetters();
     const { scene } = useThree()
     const { playersForGame, allPlayersExceptMe, amISeeker } = usePlayers()
+    const controls = useRef<ThreeOrbitControls | null>(null);
 
     // console.log(playerRef.current?.fbxObject);
     // Update targetPosition & indicatorPosition
@@ -267,10 +271,12 @@ const Room: React.FC = () => {
                             )
                         })
                 }
-                <PostBox onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
-                <Computer />
+                <PostSystem onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} controls={controls.current} />
+                <Computer controls={controls.current} />
                 <Voting />
             </Physics>
+            <CanvasUI />
+            <OrbitControls ref={controls} />
             <gridHelper args={[30, 15]} />
         </>
     );
