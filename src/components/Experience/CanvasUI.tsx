@@ -1,11 +1,13 @@
 import { Container, Fullscreen, Text as TextUI } from "@react-three/uikit";
-import { isHost, useMultiplayerState } from "playroomkit";
+import { isHost, myPlayer, useMultiplayerState } from "playroomkit";
 import { useEffect, useState } from "react";
+import usePlayers from "./usePlayers";
 
 const CanvasUI = () => {
 
     const [isRestart, setIsRestart] = useState(false)
     const [, setStatus] = useMultiplayerState<number>('status', 0);
+    const { amISeeker } = usePlayers()
 
     /**
      * Handle the key press event
@@ -57,6 +59,15 @@ const CanvasUI = () => {
                         Restart game
                     </TextUI>
                 </Container>}
+            <Container positionType={"absolute"} positionBottom={0} positionLeft={0} padding={0} paddingTop={50} paddingRight={80} backgroundColor={"#606060"} transformRotateZ={-35} width={"80%"} height={"60%"} flexDirection={"column"} justifyContent={"flex-start"} alignItems={"center"} transformTranslateX={"-40%"} transformTranslateY={"55%"}>
+                <TextUI fontWeight={700} color={"white"} fontSize={25}>You are:</TextUI>
+                <TextUI color={!myPlayer().getState("isAlive") || !amISeeker ? "green" : "#FF0004"} fontSize={50} fontWeight={700} opacity={.9}>
+                    {!myPlayer().getState("isAlive") ? "Dead." : amISeeker ? "Seeker" : "Hider"}
+                </TextUI>
+                {/* <div className="rotate-[35deg] absolute sm:w-[30%] w-[20%] sm:bottom-[110px] bottom-[50%] sm:right-[150px] right-[40%]">
+                    {seeker === user?.email ? <img src={botLogo} alt="" /> : <img src={hiderLogo} />}
+                </div> */}
+            </Container>
         </Fullscreen>
     )
 }

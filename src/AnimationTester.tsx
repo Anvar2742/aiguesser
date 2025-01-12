@@ -65,7 +65,7 @@ function AnimationTester() {
       <Canvas gl={{ antialias: true, toneMapping: THREE.NoToneMapping }} linear>
         <ambientLight intensity={1} />
         <directionalLight position={[0, 10, 5]} intensity={1} />
-        <OrbitControls />
+        <OrbitControls minAzimuthAngle={0} maxAzimuthAngle={Math.PI * .5} />
         <WorldModel path="/models/robot.glb" togglePlay={togglePlay} />
       </Canvas>
     </div>

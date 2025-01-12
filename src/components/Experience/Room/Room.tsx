@@ -276,7 +276,9 @@ const Room: React.FC = () => {
                 <Voting />
             </Physics>
             <CanvasUI />
-            <OrbitControls ref={controls} />
+            <OrbitControls ref={controls}
+                // minAzimuthAngle={-Math.PI * .05} maxAzimuthAngle={Math.PI * .05} minPolarAngle={Math.PI * .35} maxPolarAngle={Math.PI * .42}
+            />
             <gridHelper args={[30, 15]} />
         </>
     );
