@@ -36,6 +36,9 @@ const useCameraAnimation = () => {
                     },
                     750
                 )
+                .onUpdate(() => {
+                    controls.enabled = true
+                })
                 .easing(Easing.Cubic.Out)
                 .start();
             tweenGroup.current.add(tweenTarget);
@@ -50,6 +53,9 @@ const useCameraAnimation = () => {
                     },
                     750
                 )
+                .onUpdate(() => {
+                    controls.enabled = true
+                })
                 .easing(Easing.Cubic.Out)
                 .start();
             tweenGroup.current.add(tweenPos);
@@ -69,6 +75,9 @@ const useCameraAnimation = () => {
                     },
                     750
                 )
+                .onUpdate(() => {
+                    controls.enabled = true
+                })
                 .easing(Easing.Cubic.Out)
                 .start();
             tweenGroup.current.add(tweenTarget);
@@ -86,6 +95,12 @@ const useCameraAnimation = () => {
                     },
                     750
                 )
+                .onEveryStart(() => {
+                    controls.enabled = true
+                })
+                .onUpdate(() => {
+                    controls.enabled = true
+                })
                 .onComplete(() => {
                     controls.enabled = false
                 })

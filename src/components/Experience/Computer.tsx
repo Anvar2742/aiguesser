@@ -31,12 +31,12 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
     // Add event key press D to switch camera to default position
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === "KeyF") {
+            if (e.code === "Digit1") {
                 e.preventDefault()
                 computerInit()
             }
 
-            if (e.code === "Escape" || e.code === "KeyD") {
+            if (e.code === "Escape" || e.code === "Digit3") {
                 e.preventDefault()
                 handleCameraAnimation(controls, screenRef.current, 0, true)
             }
@@ -101,7 +101,7 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
                                 }
 
                                 return (
-                                    <Container flexDirection={"column"} justifyContent={"center"} width={"100%"}>
+                                    <Container flexDirection={"column"} justifyContent={"center"} width={"100%"} padding={10}>
                                         <FontFamilyProvider roboto={{
                                             medium: "fixed-roboto-condensed-msdf.json",
                                         }}>
@@ -120,7 +120,7 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
                                             >
                                                 Игрок #{player.getState("postAddress")}
                                             </Text>
-                                            <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15} overflow={"scroll"} gap={10}>
+                                            <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15} overflow={"scroll"} gap={10} height={"100%"}>
                                                 {
                                                     lettersUI
                                                         ?.filter((letter: LetterUI) => {
@@ -131,7 +131,7 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
                                                             return (
                                                                 <Text
                                                                     key={index}
-                                                                    fontSize={6}
+                                                                    fontSize={7}
                                                                     color="#f5f5f5"
                                                                     alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
                                                                     maxWidth={150}

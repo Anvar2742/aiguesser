@@ -33,7 +33,7 @@ const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, c
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === "KeyW") {
+            if (e.code === "Digit2") {
                 e.preventDefault()
                 computerInit()
             }
