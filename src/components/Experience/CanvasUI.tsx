@@ -35,7 +35,7 @@ const CanvasUI = () => {
             {isRestart && isHost() &&
                 <Container
                     positionType="absolute"
-                    positionBottom={0}
+                    positionTop={0}
                     positionLeft={0}
                     backgroundColor={"gray"}
                     backgroundOpacity={.9}
