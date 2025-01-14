@@ -60,7 +60,8 @@ const useLetters = () => {
         const to: string | undefined = players.find(player => player.getState("role") === "seeker")?.id
         if (!to) return
         try {
-            const response = await fetch("http://127.0.0.1:5001/aiguessr-vf/europe-west1/gptLetter", {
+            const main = window.location.hostname === 'localhost' ? "http://127.0.0.1:5001/aiguessr-vf/europe-west1/gptLetter" : "https://gptletter-zfgfpmp7fq-ew.a.run.app"
+            const response = await fetch(`${main}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -90,6 +91,17 @@ const useLetters = () => {
             updateLetter(gptLetter, true);
         } catch (error) {
             console.error('Error sending prompt to GPT:', error);
+            const gptLetter: Letter = {
+                owner: to,
+                to,
+                from: letter.owner,
+                uuid: letter.uuid,
+                position: letter.position,
+                msg: "ERROR",
+                isInPostBox: true
+            }
+            // console.log('GPT letter:', gptLetter);
+            updateLetter(gptLetter, true);
         }
     }
 

@@ -1,10 +1,9 @@
-import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { ThreeEvent, useFrame } from "@react-three/fiber";
 import { Root, Container, Text as TextUI } from "@react-three/uikit"
-import { Tween, Easing, Group as TweenGroup } from "@tweenjs/tween.js";
-import { myPlayer, PlayerState, usePlayerState } from "playroomkit";
+import { Group as TweenGroup } from "@tweenjs/tween.js";
+import { myPlayer, PlayerState } from "playroomkit";
 import { useEffect, useRef } from "react";
-import { Group, Vector3 } from "three";
-import { cameraDefault } from "../utills";
+import { Group } from "three";
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import useCameraAnimation from "../MyControls";
 import usePlayers from "../usePlayers";

@@ -1,5 +1,4 @@
 import './App.css'
-import TheRoom from './components/Experience/Room/Room'
 import Game from './components/Game/Game'
 
 function App() {

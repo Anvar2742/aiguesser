@@ -1,13 +1,11 @@
-import { ThreeEvent, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { ThreeEvent } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
-import { Group as ThreeGroup, Vector3 } from 'three';
-import { Tween, Group, Easing } from '@tweenjs/tween.js';
+import { Group as ThreeGroup } from 'three';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import { myPlayer, PlayerState } from 'playroomkit';
 import usePlayers from './usePlayers';
 import useLetters, { LetterUI } from './useLetters';
-import { Container, Root, Text } from '@react-three/uikit';
+import { Container, FontFamilyProvider, Root, Text } from '@react-three/uikit';
 import useCameraAnimation from './MyControls';
 
 type ComputerProps = {
@@ -25,7 +23,7 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
     const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
         e?.stopPropagation();
         if (!screenRef.current) return
-        const newTargetPoint = screenRef.current.position.clone()
+        // const newTargetPoint = screenRef.current.position.clone()
         // console.log(newTargetPoint);
         handleCameraAnimation(controls, screenRef.current)
     };
@@ -103,46 +101,53 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
                                 }
 
                                 return (
-                                    <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15}>
-                                        <Text
-                                            fontSize={8}
-                                            color="#f5f5f5"
-                                            fontWeight={700}
-                                            backgroundColor={"blue"}
-                                            paddingY={4}
-                                            paddingX={8}
-                                            borderRadius={5}
-                                            textAlign={"center"}
-                                            alignSelf="center"
-                                        >
-                                            Chat with player #{player.getState("postAddress")}
-                                        </Text>
-                                        <Container flexDirection="column" gap={10} paddingTop={15}>
-                                            {
-                                                lettersUI
-                                                    ?.filter((letter: LetterUI) => {
-                                                        const isBetweenSeekerAndPlayer = (letter.from === seeker?.id && letter.to === player?.id) || (letter.from === player?.id && letter.to === seeker?.id);
-                                                        return isBetweenSeekerAndPlayer;
-                                                    })
-                                                    ?.map((letter: LetterUI, index: number) => {
-                                                        return (
-                                                            <Text
-                                                                key={index}
-                                                                fontSize={6}
-                                                                color="#f5f5f5"
-                                                                alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
-                                                                maxWidth={150}
-                                                                backgroundColor={"#444"}
-                                                                borderRadius={10}
-                                                                paddingY={4}
-                                                                paddingX={8}
-                                                            >
-                                                                {letter.msg ?? ''}
-                                                            </Text>
-                                                        );
-                                                    })
-                                            }
-                                        </Container>
+                                    <Container flexDirection={"column"} justifyContent={"center"} width={"100%"}>
+                                        <FontFamilyProvider roboto={{
+                                            medium: "fixed-roboto-condensed-msdf.json",
+                                        }}>
+                                            <Text
+                                                fontSize={10}
+                                                color="#f5f5f5"
+                                                fontWeight={700}
+                                                backgroundColor={"blue"}
+                                                paddingY={4}
+                                                paddingX={8}
+                                                borderRadius={5}
+                                                textAlign={"center"}
+                                                alignSelf="center"
+                                                maxHeight={20}
+                                                marginBottom={15}
+                                            >
+                                                Игрок #{player.getState("postAddress")}
+                                            </Text>
+                                            <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15} overflow={"scroll"} gap={10}>
+                                                {
+                                                    lettersUI
+                                                        ?.filter((letter: LetterUI) => {
+                                                            const isBetweenSeekerAndPlayer = (letter.from === seeker?.id && letter.to === player?.id) || (letter.from === player?.id && letter.to === seeker?.id);
+                                                            return isBetweenSeekerAndPlayer;
+                                                        })
+                                                        ?.map((letter: LetterUI, index: number) => {
+                                                            return (
+                                                                <Text
+                                                                    key={index}
+                                                                    fontSize={6}
+                                                                    color="#f5f5f5"
+                                                                    alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
+                                                                    maxWidth={150}
+                                                                    backgroundColor={"#444"}
+                                                                    borderRadius={10}
+                                                                    paddingY={4}
+                                                                    paddingX={8}
+                                                                    maxHeight={20}
+                                                                >
+                                                                    {letter.msg ?? ''}
+                                                                </Text>
+                                                            );
+                                                        })
+                                                }
+                                            </Container>
+                                        </FontFamilyProvider>
                                     </Container>
                                 );
                             })

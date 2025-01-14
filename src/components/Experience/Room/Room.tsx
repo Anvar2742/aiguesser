@@ -8,7 +8,7 @@ import PickableItem from '../InteractionSystem/PickableItem';
 import PostSystem from '../PostBox/PostSystem';
 import { Group, Mesh, SkeletonHelper, Vector3 } from 'three';
 import useLetters, { Letter } from '../useLetters';
-import { myPlayer, usePlayersList } from 'playroomkit';
+import { myPlayer } from 'playroomkit';
 import Computer from '../Computer';
 import Voting from '../../Game/Voting';
 import Walls from './Walls';

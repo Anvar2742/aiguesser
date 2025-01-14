@@ -1,5 +1,4 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { Root, Container, Text as TextUI } from "@react-three/uikit";
 import { myPlayer, PlayerState } from "playroomkit";
 
 type PostBoxProps = {

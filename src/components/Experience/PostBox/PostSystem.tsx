@@ -1,8 +1,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
-import { isHost, myPlayer, PlayerState, useMultiplayerState } from 'playroomkit';
-import { Container, Fullscreen, Root, Text as TextUI } from '@react-three/uikit';
+import { myPlayer, PlayerState } from 'playroomkit';
+import { Container, Fullscreen, Text as TextUI } from '@react-three/uikit';
 import usePlayers from '../usePlayers';
 import PostBox from './PostBox';
 import PostBoxScreen from './PostBoxScreen';

@@ -155,7 +155,7 @@ const Game = () => {
             init();
         } else if (status === 2) {
             if (roles.length) {
-                players.forEach((player: PlayerState, i: number) => {
+                players.forEach((player: PlayerState) => {
                     roles.forEach((role: PlayerStatus) => {
                         if (player.id === role.id) {
                             player.setState("role", role.role);
@@ -232,7 +232,7 @@ const Game = () => {
                     }
                 </ul>
             </div> */}
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault}>
+            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault} gl={{ localClippingEnabled: true }}>
                 <Room />
             </Canvas>
         </>

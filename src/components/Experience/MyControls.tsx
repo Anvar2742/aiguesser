@@ -1,6 +1,5 @@
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import { Group, Vector3 } from "three";
 import { Tween, Easing, Group as TweenGroup } from "@tweenjs/tween.js";
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
@@ -21,6 +20,7 @@ const useCameraAnimation = () => {
         const targetPosition = new Vector3();
         const adjustedTarget = new Vector3();
 
+        controls.enabled = true
         if (isDefault) {
             // Reset to default camera and lookAt position
             const defaultCameraPosition = new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]); // Adjust these to your default camera position
@@ -86,6 +86,9 @@ const useCameraAnimation = () => {
                     },
                     750
                 )
+                .onComplete(() => {
+                    controls.enabled = false
+                })
                 .easing(Easing.Cubic.Out)
                 .start();
             tweenGroup.current.add(tweenPos);

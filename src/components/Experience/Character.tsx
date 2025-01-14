@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
 import { Vector3, AnimationMixer } from 'three';
