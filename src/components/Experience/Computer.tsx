@@ -6,7 +6,7 @@ import { myPlayer, PlayerState } from 'playroomkit';
 import usePlayers from './usePlayers';
 import useLetters, { LetterUI } from './useLetters';
 import { Container, FontFamilyProvider, Root, Text } from '@react-three/uikit';
-import useCameraAnimation from './MyControls';
+import useCameraAnimation from './useCameraAnimation';
 
 type ComputerProps = {
     controls: ThreeOrbitControls | null;

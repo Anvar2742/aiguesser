@@ -26,7 +26,7 @@ const PostSystem = forwardRef<any, PostProps>(({ onObjectSent, onObjectPut, post
 
     useFrame(() => {
         if (postBoxRef.current) {
-            postedObject?.position.set(-1.1, 1, 0);
+            postedObject?.position.set(-1.2, 2.5, .85);
         }
     })
 
@@ -78,11 +78,7 @@ const PostSystem = forwardRef<any, PostProps>(({ onObjectSent, onObjectPut, post
             ref={postBoxRef}
             onContextMenu={onObjectPut}
         >
-            <PostBox
-                postedObject={postedObject}
-                toPlayer={toPlayer}
-                onObjectSent={onObjectSent}
-            />
+            <PostBox postedObject={postedObject} />
             <PostBoxScreen
                 toPlayer={toPlayer}
                 onObjectSent={onObjectSent}

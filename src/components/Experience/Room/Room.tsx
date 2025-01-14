@@ -174,6 +174,8 @@ const Room: React.FC = () => {
 
             // Set the posted object as null
             setPostedObject(null);
+        } else {
+            alert("Put a letter in the box.")
         }
     }
 
@@ -277,7 +279,7 @@ const Room: React.FC = () => {
             </Physics>
             <CanvasUI />
             <OrbitControls ref={controls}
-                // minAzimuthAngle={-Math.PI * .05} maxAzimuthAngle={Math.PI * .05} minPolarAngle={Math.PI * .35} maxPolarAngle={Math.PI * .42}
+            // minAzimuthAngle={-Math.PI * .05} maxAzimuthAngle={Math.PI * .05} minPolarAngle={Math.PI * .35} maxPolarAngle={Math.PI * .42}
             />
             <gridHelper args={[30, 15]} />
         </>

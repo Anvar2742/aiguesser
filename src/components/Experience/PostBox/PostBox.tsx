@@ -1,14 +1,11 @@
-import { ThreeEvent } from "@react-three/fiber";
-import { myPlayer, PlayerState } from "playroomkit";
+import { myPlayer } from "playroomkit";
 
 type PostBoxProps = {
     postedObject: any | null; // The object that is in the post box
-    toPlayer: PlayerState | null; // The player to send the object
-    onObjectSent: (e: ThreeEvent<MouseEvent>, to: string | null) => void; // Callback to inform the parent when the object is sent
 };
 
 
-const PostBox: React.FC<PostBoxProps> = ({ postedObject, toPlayer, onObjectSent }) => {
+const PostBox: React.FC<PostBoxProps> = ({ postedObject }) => {
     return (
         <>
             <mesh
@@ -21,10 +18,10 @@ const PostBox: React.FC<PostBoxProps> = ({ postedObject, toPlayer, onObjectSent 
                 <meshStandardMaterial color={myPlayer().getState("isAlive") ? "yellow" : "red"} />
             </mesh>
             <mesh
-                onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
+                // onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
                 castShadow
                 receiveShadow
-                position={[0, 1, 1.1]}
+                position={[0, 3.5, 1.1]}
             >
                 <boxGeometry args={[.2, .2, .2]} />
                 <meshStandardMaterial

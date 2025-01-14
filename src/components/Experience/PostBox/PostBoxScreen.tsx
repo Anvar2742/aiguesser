@@ -5,7 +5,7 @@ import { myPlayer, PlayerState } from "playroomkit";
 import { useEffect, useRef } from "react";
 import { Group } from "three";
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
-import useCameraAnimation from "../MyControls";
+import useCameraAnimation from "../useCameraAnimation";
 import usePlayers from "../usePlayers";
 
 type PostBoxScreenProps = {
@@ -19,12 +19,12 @@ const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, c
     const tweenGroup = useRef(new TweenGroup());
     const screenRef = useRef<Group>(null);
     const { handleCameraAnimation } = useCameraAnimation()
-    const { allPlayersExceptMe } = usePlayers()
+    const { allPlayersExceptMe, amISeeker } = usePlayers()
 
     const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
         e?.stopPropagation();
         if (!screenRef.current) return
-        handleCameraAnimation(controls, screenRef.current, 2)
+        handleCameraAnimation(controls, screenRef.current, 3.5)
     };
 
     useFrame(() => {
@@ -62,36 +62,38 @@ const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, c
                     gap={5}
                     padding={20}
                 >
-                    <Container
-                        backgroundOpacity={.9}
-                        gap={5}
-                        padding={5}
-                    >
-                        <>
-                            {
-                                allPlayersExceptMe.map((player: PlayerState) => {
-                                    const pAddress = player.getState("postAddress")
-                                    return (
-                                        <TextUI
-                                            onClick={(e) => updateToPlayer(e, player)}
-                                            fontSize={4}
-                                            key={player.id}
-                                            backgroundColor={"white"}
-                                            paddingY={5}
-                                            paddingX={10}
-                                            borderRadius={10}
-                                            borderWidth={1}
-                                            borderColor={"black"}
-                                            hover={{ backgroundOpacity: .9 }}
+                    {
+                        amISeeker && <Container
+                            backgroundOpacity={.9}
+                            gap={5}
+                            padding={5}
+                        >
+                            <>
+                                {
+                                    allPlayersExceptMe.map((player: PlayerState) => {
+                                        const pAddress = player.getState("postAddress")
+                                        return (
+                                            <TextUI
+                                                onClick={(e) => updateToPlayer(e, player)}
+                                                fontSize={6}
+                                                key={player.id}
+                                                backgroundColor={"white"}
+                                                paddingY={5}
+                                                paddingX={10}
+                                                borderRadius={10}
+                                                borderWidth={1}
+                                                borderColor={"black"}
+                                                hover={{ backgroundOpacity: .9 }}
 
-                                        >
-                                            Post address: {pAddress}
-                                        </TextUI>
-                                    )
-                                })
-                            }
-                        </>
-                    </Container>
+                                            >
+                                                Post address: {pAddress}
+                                            </TextUI>
+                                        )
+                                    })
+                                }
+                            </>
+                        </Container>
+                    }
 
                     <TextUI
                         onClick={(e) => onObjectSent(e, toPlayer?.id ?? null)}
