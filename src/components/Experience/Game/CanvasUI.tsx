@@ -1,7 +1,7 @@
 import { Container, Fullscreen, Text as TextUI } from "@react-three/uikit";
 import { isHost, myPlayer, useMultiplayerState } from "playroomkit";
 import { useEffect, useState } from "react";
-import usePlayers from "./usePlayers";
+import usePlayers from "./helpers/usePlayers";
 
 const CanvasUI = () => {
 

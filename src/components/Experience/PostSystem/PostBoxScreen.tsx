@@ -5,8 +5,8 @@ import { myPlayer, PlayerState } from "playroomkit";
 import { useEffect, useRef } from "react";
 import { Group } from "three";
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
-import useCameraAnimation from "../useCameraAnimation";
-import usePlayers from "../usePlayers";
+import useCameraAnimation from "../helpers/useCameraAnimation";
+import usePlayers from "../helpers/usePlayers";
 
 type PostBoxScreenProps = {
     toPlayer: PlayerState | null; // The player to send the object

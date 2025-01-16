@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { RigidBody } from '@react-three/rapier';
 import { Vector3, AnimationMixer } from 'three';
 import { useGLTF } from '@react-three/drei';
-import { Position } from './utills';
+import { Position } from './../helpers/utills';
 
 type CharacterProps = {
     targetPosition: Position;

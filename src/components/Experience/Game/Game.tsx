@@ -1,11 +1,11 @@
 import { onPlayerJoin, insertCoin, PlayerState, useMultiplayerState, myPlayer, isHost, Bot } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
-import Room from "../Experience/Room/Room";
+import Room from "../Room/Room";
 import { Canvas } from "@react-three/fiber";
-import useLetters, { Letter } from "../Experience/useLetters";
+import useLetters, { Letter } from "../helpers/useLetters";
 import { Mesh, Vector3 } from "three";
-import Loader from "../Loader";
-import { cameraDefault } from "../Experience/utills";
+import Loader from "../helpers/Loader";
+import { cameraDefault } from "../helpers/utills";
 
 export type PlayerStatus = {
     id: string;

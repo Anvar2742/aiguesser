@@ -3,7 +3,7 @@ import { Group } from 'three';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { myPlayer, PlayerState } from 'playroomkit';
 import { Container, Fullscreen, Text as TextUI } from '@react-three/uikit';
-import usePlayers from '../usePlayers';
+import usePlayers from '../helpers/usePlayers';
 import PostBox from './PostBox';
 import PostBoxScreen from './PostBoxScreen';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';

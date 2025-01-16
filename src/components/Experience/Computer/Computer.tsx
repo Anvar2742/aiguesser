@@ -3,10 +3,10 @@ import { useEffect, useRef } from 'react';
 import { Group as ThreeGroup } from 'three';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import { myPlayer, PlayerState } from 'playroomkit';
-import usePlayers from './usePlayers';
-import useLetters, { LetterUI } from './useLetters';
+import usePlayers from '../helpers/usePlayers';
+import useLetters, { LetterUI } from '../helpers/useLetters';
 import { Container, FontFamilyProvider, Root, Text } from '@react-three/uikit';
-import useCameraAnimation from './useCameraAnimation';
+import useCameraAnimation from '../helpers/useCameraAnimation';
 
 type ComputerProps = {
     controls: ThreeOrbitControls | null;

@@ -1,7 +1,7 @@
 import { Fullscreen, Container, Text as TextUI } from "@react-three/uikit";
 import { PlayerState, useMultiplayerState } from "playroomkit";
 import { useEffect, useState } from "react";
-import usePlayers from "../Experience/usePlayers";
+import usePlayers from "../helpers/usePlayers";
 import { ThreeEvent } from "@react-three/fiber";
 import { PlayerStatus } from "./Game";
 

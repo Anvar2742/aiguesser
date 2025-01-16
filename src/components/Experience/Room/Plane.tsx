@@ -1,5 +1,5 @@
 import { RigidBody } from "@react-three/rapier";
-import { Position } from "./utills";
+import { Position } from "../helpers/utills";
 
 type PlaneProps = {
     onPlaneClick: (position: Position) => void;
