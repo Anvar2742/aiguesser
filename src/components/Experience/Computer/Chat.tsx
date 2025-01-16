@@ -1,59 +1,72 @@
-import { useState } from 'react';
-import { Text } from '@react-three/drei';
+import { PlayerState } from 'playroomkit';
+import { Container, FontFamilyProvider, Text } from '@react-three/uikit';
+import useLetters, { LetterUI } from '../helpers/useLetters';
+import usePlayers from '../helpers/usePlayers';
 
-const Chat = () => {
-    const [messages, setMessages] = useState([
-        "Hello! Welcome to the chat.",
-        "How can I help you?",
-        "How can I help you?",
-    ]);
 
-    // Function to add a new message
-    const addMessage = (newMessage: string) => {
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-    };
+type ChatProps = {
+    player: PlayerState;
+}
+
+const Chat: React.FC<ChatProps> = ({ player }) => {
+    const playerRole = player.getState("role");
+    const { lettersUI } = useLetters();
+    const { seeker, amISeeker } = usePlayers();
+
+    // Skip invalid combinations
+    if ((!amISeeker && playerRole === "seeker") || (amISeeker && playerRole === "seeker")) {
+        return null;
+    }
 
     return (
-        <group position={[0, 3, 1]}>
-            {/* Chat Window Plane */}
-            <mesh>
-                <planeGeometry args={[5, 3]} />
-                <meshStandardMaterial color="#000" opacity={.9} transparent />
-            </mesh>
-
-            {/* Chat Messages */}
-            <group position={[-1.4, 0.8, 0.01]}>
-                {messages.map((msg, index) => (
-                    <Text
-                        key={index}
-                        position={[0, -index * 0.5, 0]} // Adjust position for each message
-                        fontSize={0.25}
-                        color="#fff"
-                        maxWidth={4}
-                        lineHeight={1.2}
-                        anchorX="left"
-                        anchorY="top"
-                    >
-                        {msg}
-                    </Text>
-                ))}
-            </group>
-
-            {/* Example: Add new message on click */}
-            <mesh
-                position={[0, -1.2, 0.01]}
-                onClick={(e) => {
-                    e.stopPropagation(); // Prevent click-through
-                    addMessage("New message added!");
-                }}
-            >
-                <boxGeometry args={[0.9, 0.3, 0.1]} />
-                <meshStandardMaterial color="blue" />
-                <Text fontSize={0.15} color="white" position={[0, 0, 0.06]}>
-                    Add Msg
+        <Container flexDirection={"column"} justifyContent={"center"} width={"100%"} padding={10}>
+            <FontFamilyProvider roboto={{
+                medium: "fixed-roboto-condensed-msdf.json",
+            }}>
+                <Text
+                    fontSize={10}
+                    color="#f5f5f5"
+                    fontWeight={700}
+                    backgroundColor={"blue"}
+                    paddingY={4}
+                    paddingX={8}
+                    borderRadius={5}
+                    textAlign={"center"}
+                    alignSelf="center"
+                    maxHeight={20}
+                    marginBottom={15}
+                >
+                    Игрок #{player.getState("postAddress")}
                 </Text>
-            </mesh>
-        </group>
+                <Container flexDirection="column" key={player.id} width="100%" borderColor={"gray"} borderWidth={2} padding={15} overflow={"scroll"} gap={10} height={"100%"}>
+                    {
+                        lettersUI
+                            ?.filter((letter: LetterUI) => {
+                                const isBetweenSeekerAndPlayer = (letter.from === seeker?.id && letter.to === player?.id) || (letter.from === player?.id && letter.to === seeker?.id);
+                                return isBetweenSeekerAndPlayer;
+                            })
+                            ?.map((letter: LetterUI, index: number) => {
+                                return (
+                                    <Text
+                                        key={index}
+                                        fontSize={7}
+                                        color="#f5f5f5"
+                                        alignSelf={letter.from === seeker?.id ? "flex-start" : "flex-end"}
+                                        maxWidth={150}
+                                        backgroundColor={"#444"}
+                                        borderRadius={10}
+                                        paddingY={4}
+                                        paddingX={8}
+                                        maxHeight={20}
+                                    >
+                                        {letter.msg ?? ''}
+                                    </Text>
+                                );
+                            })
+                    }
+                </Container>
+            </FontFamilyProvider>
+        </Container>
     );
 };
 
