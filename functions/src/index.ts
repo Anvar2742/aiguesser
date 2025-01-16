@@ -8,7 +8,7 @@ import { prompts } from './prompts';
 
 // Initialize OpenAI with the API key from Firebase config
 // const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-const cors = process.env.IS_DEV ? "http://localhost:5173" : "https://aiguesser.io"
+const cors = process.env.IS_DEV ? "http://localhost:5173" : "https://aiguessr-vf.web.app"
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
