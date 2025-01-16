@@ -1,18 +1,16 @@
-import { useEffect, useImperativeHandle, useRef } from "react";
+import { useEffect, useRef } from "react";
 import usePlayers from "../helpers/usePlayers";
 import { Root, Container } from "@react-three/uikit";
 import Chat from "./Chat";
 import { PlayerState } from "playroomkit";
 import { Group as ThreeGroup } from 'three';
 import useCameraAnimation from "../helpers/useCameraAnimation";
-import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 
 type ScreenProps = {
-    controls: ThreeOrbitControls | null;
     isComp: boolean;
 }
 
-const Screen: React.FC<ScreenProps> = ({ controls, isComp }) => {
+const Screen: React.FC<ScreenProps> = ({ isComp }) => {
     const screenRef = useRef<ThreeGroup>(null);
     const { playersForGame } = usePlayers();
 
@@ -24,12 +22,12 @@ const Screen: React.FC<ScreenProps> = ({ controls, isComp }) => {
             if (e.code === "Digit1") {
                 e.preventDefault()
                 if (!screenRef.current) return
-                handleCameraAnimation(controls, screenRef.current)
+                handleCameraAnimation(screenRef.current)
             }
 
             if (e.code === "Escape" || e.code === "Digit3") {
                 e.preventDefault()
-                handleCameraAnimation(controls, screenRef.current, 0, true)
+                handleCameraAnimation(screenRef.current, 0, true)
             }
         }
         window.addEventListener("keydown", handleKeyDown)
@@ -37,11 +35,11 @@ const Screen: React.FC<ScreenProps> = ({ controls, isComp }) => {
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [controls])
+    }, [])
 
     useEffect(() => {
         if (isComp) {
-            handleCameraAnimation(controls, screenRef.current)
+            handleCameraAnimation(screenRef.current)
         }
     }, [isComp])
 

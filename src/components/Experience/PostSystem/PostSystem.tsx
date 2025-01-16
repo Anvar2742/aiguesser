@@ -6,16 +6,14 @@ import { Container, Fullscreen, Text as TextUI } from '@react-three/uikit';
 import usePlayers from '../helpers/usePlayers';
 import PostBox from './PostBox';
 import PostBoxScreen from './PostBoxScreen';
-import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 
 type PostProps = {
     onObjectPut: (e: ThreeEvent<MouseEvent>) => void; // Callback to inform the parent when the object is sent
     onObjectSent: (e: ThreeEvent<MouseEvent>, to: string | null) => void; // Callback to inform the parent when the object is sent
     postedObject: any | null; // The object that is in the post box
-    controls: ThreeOrbitControls | null;
 };
 
-const PostSystem = forwardRef<any, PostProps>(({ onObjectSent, onObjectPut, postedObject, controls }, ref) => {
+const PostSystem = forwardRef<any, PostProps>(({ onObjectSent, onObjectPut, postedObject }, ref) => {
     const postBoxRef = useRef<Group>(null);
     const [toPlayer, setToPlayer] = useState<PlayerState | null>(null)
     const [isChossingRecipient, setIsChossingRecipient] = useState(false)
@@ -82,7 +80,6 @@ const PostSystem = forwardRef<any, PostProps>(({ onObjectSent, onObjectPut, post
             <PostBoxScreen
                 toPlayer={toPlayer}
                 onObjectSent={onObjectSent}
-                controls={controls}
                 updateToPlayer={updateToPlayer}
             />
             <Fullscreen>

@@ -1,33 +1,33 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Group, Vector3 } from "three";
 import { Tween, Easing, Group as TweenGroup } from "@tweenjs/tween.js";
-import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import { cameraDefault } from "./utills";
+import { Context } from "../../Context";
 
 const useCameraAnimation = () => {
     const tweenGroup = useRef(new TweenGroup());
     const { camera } = useThree();
+    const contextControls = useContext(Context);
     // Method to animate the camera
     const handleCameraAnimation = (
-        controls: ThreeOrbitControls | null,
         target: Group | null,
         offsetZ: number = 4.5,
         isDefault: boolean = false
     ) => {
-        if (!controls) return;
+        if (!contextControls) return;
 
         const targetPosition = new Vector3();
         const adjustedTarget = new Vector3();
 
-        controls.enabled = true
+        contextControls.enabled = true
         if (isDefault) {
             // Reset to default camera and lookAt position
             const defaultCameraPosition = new Vector3(cameraDefault.position[0], cameraDefault.position[1], cameraDefault.position[2]); // Adjust these to your default camera position
             const defaultLookAt = new Vector3(0, 0, 0);
 
             // Tween for camera target
-            const tweenTarget = new Tween(controls.target)
+            const tweenTarget = new Tween(contextControls.target)
                 .to(
                     {
                         x: defaultLookAt.x,
@@ -37,7 +37,7 @@ const useCameraAnimation = () => {
                     750
                 )
                 .onUpdate(() => {
-                    controls.enabled = true
+                    contextControls.enabled = true
                 })
                 .easing(Easing.Cubic.Out)
                 .start();
@@ -54,7 +54,7 @@ const useCameraAnimation = () => {
                     750
                 )
                 .onUpdate(() => {
-                    controls.enabled = true
+                    contextControls.enabled = true
                 })
                 .easing(Easing.Cubic.Out)
                 .start();
@@ -66,7 +66,7 @@ const useCameraAnimation = () => {
             adjustedTarget.copy(targetPosition)
 
             // Tween for target rotation
-            const tweenTarget = new Tween(controls.target)
+            const tweenTarget = new Tween(contextControls.target)
                 .to(
                     {
                         x: adjustedTarget.x,
@@ -76,7 +76,7 @@ const useCameraAnimation = () => {
                     750
                 )
                 .onUpdate(() => {
-                    controls.enabled = true
+                    contextControls.enabled = true
                 })
                 .easing(Easing.Cubic.Out)
                 .start();
@@ -96,13 +96,13 @@ const useCameraAnimation = () => {
                     750
                 )
                 .onEveryStart(() => {
-                    controls.enabled = true
+                    contextControls.enabled = true
                 })
                 .onUpdate(() => {
-                    controls.enabled = true
+                    contextControls.enabled = true
                 })
                 .onComplete(() => {
-                    controls.enabled = false
+                    contextControls.enabled = false
                 })
                 .easing(Easing.Cubic.Out)
                 .start();

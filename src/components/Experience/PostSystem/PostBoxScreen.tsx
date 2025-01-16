@@ -4,18 +4,16 @@ import { Group as TweenGroup } from "@tweenjs/tween.js";
 import { myPlayer, PlayerState } from "playroomkit";
 import { useEffect, useRef } from "react";
 import { Group } from "three";
-import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import useCameraAnimation from "../helpers/useCameraAnimation";
 import usePlayers from "../helpers/usePlayers";
 
 type PostBoxScreenProps = {
     toPlayer: PlayerState | null; // The player to send the object
     onObjectSent: (e: ThreeEvent<MouseEvent>, to: string | null) => void; // Callback to inform the parent when the object is sent
-    controls: ThreeOrbitControls | null;
     updateToPlayer: (e: ThreeEvent<MouseEvent>, player: PlayerState) => void;
 };
 
-const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, controls, updateToPlayer }) => {
+const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, updateToPlayer }) => {
     const tweenGroup = useRef(new TweenGroup());
     const screenRef = useRef<Group>(null);
     const { handleCameraAnimation } = useCameraAnimation()
@@ -24,7 +22,7 @@ const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, c
     const computerInit = (e: ThreeEvent<MouseEvent> | null = null) => {
         e?.stopPropagation();
         if (!screenRef.current) return
-        handleCameraAnimation(controls, screenRef.current, 3.5)
+        handleCameraAnimation(screenRef.current, 3.5)
     };
 
     useFrame(() => {
@@ -43,7 +41,7 @@ const PostBoxScreen: React.FC<PostBoxScreenProps> = ({ onObjectSent, toPlayer, c
         return () => {
             window.removeEventListener("keydown", handleKeyDown)
         }
-    }, [controls])
+    }, [])
 
 
     return (

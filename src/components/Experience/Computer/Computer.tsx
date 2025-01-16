@@ -2,12 +2,8 @@ import Screen from './Screen';
 import { ThreeEvent } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import { Group as ThreeGroup } from 'three';
-import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 
-type ComputerProps = {
-    controls: ThreeOrbitControls | null;
-}
-const Computer: React.FC<ComputerProps> = ({ controls }) => {
+const Computer = () => {
     const postBoxRef = useRef<ThreeGroup>(null);
     const [isComp, setIsComp] = useState(false)
 
@@ -35,7 +31,7 @@ const Computer: React.FC<ComputerProps> = ({ controls }) => {
             </mesh>
 
             {/* Chat window */}
-            <Screen controls={controls} isComp={isComp} />
+            <Screen isComp={isComp} />
         </group>
     );
 };

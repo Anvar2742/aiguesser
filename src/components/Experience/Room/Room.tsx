@@ -16,6 +16,7 @@ import usePlayers from '../helpers/usePlayers';
 import CanvasUI from '../Game/CanvasUI';
 import type { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import { OrbitControls } from '@react-three/drei';
+import { Context } from '../../Context';
 
 const Room: React.FC = () => {
     // Position & Movement
@@ -234,7 +235,7 @@ const Room: React.FC = () => {
     }, [scene]);
 
     return (
-        <>
+        <Context.Provider value={controls.current}>
             <ambientLight intensity={1} />
             <group position={[0, 10, 5]}>
                 <directionalLight
@@ -273,8 +274,8 @@ const Room: React.FC = () => {
                             )
                         })
                 }
-                <PostSystem onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} controls={controls.current} />
-                <Computer controls={controls.current} />
+                <PostSystem onObjectSent={sendLetter} onObjectPut={putObjectInPost} postedObject={postedObject} ref={postBoxRef} />
+                <Computer />
                 <Voting />
             </Physics>
             <CanvasUI />
@@ -282,7 +283,7 @@ const Room: React.FC = () => {
             // minAzimuthAngle={-Math.PI * .05} maxAzimuthAngle={Math.PI * .05} minPolarAngle={Math.PI * .35} maxPolarAngle={Math.PI * .42}
             />
             <gridHelper args={[30, 15]} />
-        </>
+        </Context.Provider>
     );
 };
 
