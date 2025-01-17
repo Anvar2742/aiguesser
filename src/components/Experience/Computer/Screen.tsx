@@ -21,6 +21,7 @@ const Screen: React.FC<ScreenProps> = ({ isComp }) => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Digit1") {
                 e.preventDefault()
+                
                 if (!screenRef.current) return
                 handleCameraAnimation(screenRef.current)
             }

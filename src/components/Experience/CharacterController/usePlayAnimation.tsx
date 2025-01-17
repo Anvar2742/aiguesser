@@ -84,6 +84,7 @@ const usePlayAnimation = ({ characterRef, onArrival, characterScene, walkAnimati
             } else {
                 // Stop movement when close to target
                 characterRef.current.setLinvel(new Vector3(0, 0, 0));
+                // Character arrived to destination
                 onArrival();
                 playAnimation(walkAnimations, 'idle'); // Play idle animation
                 setTargetPosition(null)

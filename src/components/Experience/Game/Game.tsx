@@ -51,6 +51,8 @@ const Game = () => {
         }, onLaunch);
 
         onPlayerJoin((state: PlayerState) => {
+            console.log("join");
+            
             playersRef.current = [...playersRef.current, state];
             setPlayers([...playersRef.current]);
 
@@ -185,57 +187,10 @@ const Game = () => {
         }
     }, [status, players]);
 
-    if (loading) {
-        return (
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault}>
-                <ambientLight intensity={1} />
-                <directionalLight
-                    position={[10, 10, 10]}
-                    intensity={1}
-                    castShadow
-                    shadow-mapSize-width={1024}
-                    shadow-mapSize-height={1024}
-                />
-                <Loader />
-            </Canvas>
-        );
-    }
-
     return (
-        <>
-            {/* <div className="fixed top-0 left-0 bg-slate-800 text-white p-2 z-50">
-                <ul>
-                    <li>{myPlayer()?.id}</li>
-                    <li>Name: {myPlayer()?.getProfile().name}</li>
-                    <li>My post address: {myPlayer()?.getState("postAddress")}</li>
-                    <li
-                        className={`${myPlayer()?.getState("role") === "seeker" ? "text-red-500" : "text-green-500"
-                            }`}
-                    >
-                        Role: {myPlayer()?.getState("role")}
-                    </li>
-                    {
-                        myPlayer().getState("role") === "seeker" ? (
-                            <ul>
-                                <span>List of post addresses</span>
-                                {
-                                    players
-                                        .filter((player: PlayerState) => player.id !== myPlayer().id)
-                                        .map((player: PlayerState) => {
-                                            return (
-                                                <li key={player.id}>{player.getState("postAddress")}</li>
-                                            )
-                                        })
-                                }
-                            </ul>
-                        ) : null
-                    }
-                </ul>
-            </div> */}
-            <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault} gl={{ localClippingEnabled: true }}>
-                <Room />
-            </Canvas>
-        </>
+        <Canvas style={{ height: "100vh", position: "fixed", top: "0", left: "0" }} shadows camera={cameraDefault} gl={{ localClippingEnabled: true }}>
+            {loading ? <Loader /> : <Room />}
+        </Canvas>
     );
 };
 

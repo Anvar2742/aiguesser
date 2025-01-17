@@ -18,7 +18,7 @@ const Character = forwardRef<any, CharacterProps>(({ targetPosition, onArrival }
     // Expose the local ref to the parent component through the forwarded ref
     useImperativeHandle(ref, () => ({
         rigidBody: characterRef.current, // Expose the rigid body
-        characterScene: characterScene,       // Expose the walk GLTF scene
+        characterScene: characterScene,  // Expose the walk GLTF scene
     }));
 
     useEffect(() => {
